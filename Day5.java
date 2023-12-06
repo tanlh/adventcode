@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Test {
+public class Day5 {
 
     @Data
     @EqualsAndHashCode
