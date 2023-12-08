@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Test {
+public class Day8 {
 
     public static void main(String[] args) {
         List<String> instructions = new ArrayList<>();
