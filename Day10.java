@@ -1,23 +1,45 @@
-import org.apache.commons.lang3.tuple.Pair;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class Day10 {
 
+    @Data
+    @AllArgsConstructor
+    public static class Point {
+        private int row;
+        private int col;
+        @EqualsAndHashCode.Exclude
+        private char symbol;
+        @EqualsAndHashCode.Exclude
+        private int rowDiff;
+        @EqualsAndHashCode.Exclude
+        private int colDiff;
+
+        public static Point of(int row, int col) {
+            return new Point(row, col, ' ', 0, 0);
+        }
+    }
+
     // Arrays to represent the change in coordinates when moving in each of the four directions
-    private static final int[] dx = {0, 1, 0, -1}; // Changes in the row index for up, right, down, left
-    private static final int[] dy = {1, 0, -1, 0}; // Changes in the column index for up, right, down, left
+    private static final int[] dx = {0, 1, 0, -1}; // Changes in the row index for right, down, left, up
+    private static final int[] dy = {1, 0, -1, 0}; // Changes in the column index for right, down, left, up
 
     public static void main(String[] args) {
         var lines = readFileToLines();
-        char[][] grid = new char[lines.size()][lines.get(0).length()];
+        var rows = lines.size();
+        var cols = lines.get(0).length();
+        char[][] grid = new char[rows][cols];
 
         var startRow = 0;
         var startCol = 0;
-
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
                 var currChar = lines.get(i).charAt(j);
                 grid[i][j] = currChar;
                 if (currChar == 'S') {
@@ -27,18 +49,163 @@ public class Day10 {
             }
         }
 
-        var loopPoints = findLoop(grid, startRow, startCol);
-        System.err.println("Farthest point: " + loopPoints.size() / 2);
+        // PART 1
+        var piles = findPiles(grid, startRow, startCol);
+        System.err.println("Farthest point: " + piles.size() / 2);
 
-        var markedGrid = new boolean[grid.length][grid[0].length];
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-                markedGrid[i][j] = loopPoints.contains(Pair.of(i, j));
+        // PART 2
+        var markedGrid = new int[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                markedGrid[i][j] = piles.contains(Point.of(i, j)) ? 1 : 0;
             }
         }
 
-        var area = findEnclosedArea(markedGrid, loopPoints);
-        System.err.println("Areas " + area);
+        markAdjacent(rows, cols, piles, markedGrid);
+
+        print2DArray(markedGrid);
+
+        int area = floodFillCount(markedGrid);
+        int otherArea = rows * cols - area - piles.size();
+        System.err.println("Area: " + area);
+        System.err.println("Other: " + otherArea);
+    }
+
+    public static void print2DArray(int[][] array) {
+        System.err.println(array.length + " " + array[0].length);
+        for (int[] row : array) {
+            for (int item : row) {
+                System.out.print(item + " ");
+            }
+            System.out.println(); // Newline after each row
+        }
+    }
+
+    // This is the hack that my friend told me
+    // With the piles in hand, we go through each cell and mark the cell on the left of it (in the current direction)
+    // After that we can start the flood fill from these marked cell. It doesn't matter the marked cell is inside or outside the piles
+    private static void markAdjacent(int rows, int cols, List<Point> piles, int[][] markedGrid) {
+        // Don't know how to fill the adjacent for the S
+        // Need manual input here for the S - Damn :))))
+        // Luckily, all the samples and file input doesn't have the case that surrounding S is not a piles cell
+
+        for (int i = 1; i < piles.size(); i++) {
+            var curr = piles.get(i);
+            if (curr.symbol == '|') {
+                if (curr.rowDiff == 1) {
+                    if (curr.col + 1 < cols && markedGrid[curr.row][curr.col + 1] == 0) {
+                        markedGrid[curr.row][curr.col + 1] = 2;
+                    }
+                } else {
+                    if (curr.col - 1 >= 0 && markedGrid[curr.row][curr.col - 1] == 0) {
+                        markedGrid[curr.row][curr.col - 1] = 2;
+                    }
+                }
+            }
+            if (curr.symbol == '-') {
+                if (curr.colDiff == 1) {
+                    if (curr.row - 1 >= 0 && markedGrid[curr.row - 1][curr.col] == 0) {
+                        markedGrid[curr.row - 1][curr.col] = 2;
+                    }
+                } else {
+                    if (curr.row + 1 < rows && markedGrid[curr.row + 1][curr.col] == 0) {
+                        markedGrid[curr.row + 1][curr.col] = 2;
+                    }
+                }
+            }
+            if (curr.symbol == '7') {
+                if (curr.colDiff == -1) {
+                    if (curr.col - 1 >= 0 && curr.row + 1 < rows && markedGrid[curr.row + 1][curr.col - 1] == 0) {
+                        markedGrid[curr.row + 1][curr.col - 1] = 2;
+                    }
+                    if (curr.col - 1 >= 0 && markedGrid[curr.row][curr.col - 1] == 0) {
+                        markedGrid[curr.row][curr.col - 1] = 2;
+                    }
+                    if (curr.row + 1 >= 0 && markedGrid[curr.row + 1][curr.col] == 0) {
+                        markedGrid[curr.row + 1][curr.col] = 2;
+                    }
+                } else {
+                    if (curr.row - 1 >= 0 && markedGrid[curr.row - 1][curr.col] == 0) {
+                        markedGrid[curr.row - 1][curr.col] = 2;
+                    }
+                    if (curr.row - 1 >= 0 && curr.col + 1 < cols && markedGrid[curr.row - 1][curr.col + 1] == 0) {
+                        markedGrid[curr.row - 1][curr.col + 1] = 2;
+                    }
+                    if (curr.col + 1 < cols && markedGrid[curr.row][curr.col + 1] == 0) {
+                        markedGrid[curr.row][curr.col + 1] = 2;
+                    }
+                }
+            }
+            if (curr.symbol == 'F') {
+                if (curr.rowDiff == 1) {
+                    if (curr.col + 1 < cols && curr.row + 1 < rows && markedGrid[curr.row + 1][curr.col + 1] == 0) {
+                        markedGrid[curr.row + 1][curr.col + 1] = 2;
+                    }
+                    if (curr.row + 1 < rows && markedGrid[curr.row + 1][curr.col] == 0) {
+                        markedGrid[curr.row + 1][curr.col] = 2;
+                    }
+                    if (curr.col + 1 < cols && markedGrid[curr.row][curr.col + 1] == 0) {
+                        markedGrid[curr.row][curr.col + 1] = 2;
+                    }
+                } else {
+                    if (curr.col - 1 >= 0 && markedGrid[curr.row][curr.col - 1] == 0) {
+                        markedGrid[curr.row][curr.col - 1] = 2;
+                    }
+                    if (curr.row - 1 >= 0 && curr.col - 1 >= 0 && markedGrid[curr.row - 1][curr.col - 1] == 0) {
+                        markedGrid[curr.row - 1][curr.col - 1] = 2;
+                    }
+                    if (curr.row - 1 >= 0 && markedGrid[curr.row - 1][curr.col] == 0) {
+                        markedGrid[curr.row - 1][curr.col] = 2;
+                    }
+                }
+            }
+            if (curr.symbol == 'L') {
+                if (curr.colDiff == 1) {
+                    if (curr.col + 1 < cols && curr.row - 1 >= 0 && markedGrid[curr.row - 1][curr.col + 1] == 0) {
+                        markedGrid[curr.row - 1][curr.col + 1] = 2;
+                    }
+                    if (curr.row - 1 >= 0 && markedGrid[curr.row - 1][curr.col] == 0) {
+                        markedGrid[curr.row - 1][curr.col] = 2;
+                    }
+                    if (curr.col + 1 < cols && markedGrid[curr.row][curr.col + 1] == 0) {
+                        markedGrid[curr.row][curr.col + 1] = 2;
+                    }
+                } else {
+                    if (curr.row + 1 < rows && markedGrid[curr.row + 1][curr.col] == 0) {
+                        markedGrid[curr.row + 1][curr.col] = 2;
+                    }
+                    if (curr.row + 1 < rows && curr.col - 1 >= 0 && markedGrid[curr.row + 1][curr.col - 1] == 0) {
+                        markedGrid[curr.row + 1][curr.col - 1] = 2;
+                    }
+                    if (curr.col - 1 >= 0 && markedGrid[curr.row][curr.col - 1] == 0) {
+                        markedGrid[curr.row][curr.col - 1] = 2;
+                    }
+                }
+            }
+            if (curr.symbol == 'J') {
+                if (curr.rowDiff == -1) {
+                    if (curr.col - 1 >= 0 && curr.row - 1 >= 0 && markedGrid[curr.row - 1][curr.col - 1] == 0) {
+                        markedGrid[curr.row - 1][curr.col - 1] = 2;
+                    }
+                    if (curr.col - 1 >= 0 && markedGrid[curr.row][curr.col - 1] == 0) {
+                        markedGrid[curr.row][curr.col - 1] = 2;
+                    }
+                    if (curr.row - 1 >= 0 && markedGrid[curr.row - 1][curr.col] == 0) {
+                        markedGrid[curr.row - 1][curr.col] = 2;
+                    }
+                } else {
+                    if (curr.row + 1 < rows && markedGrid[curr.row + 1][curr.col] == 0) {
+                        markedGrid[curr.row + 1][curr.col] = 2;
+                    }
+                    if (curr.row + 1 < rows && curr.col + 1 < cols && markedGrid[curr.row + 1][curr.col + 1] == 0) {
+                        markedGrid[curr.row + 1][curr.col + 1] = 2;
+                    }
+                    if (curr.col + 1 < cols && markedGrid[curr.row][curr.col + 1] == 0) {
+                        markedGrid[curr.row][curr.col + 1] = 2;
+                    }
+                }
+            }
+        }
     }
 
     private static List<String> readFileToLines() {
@@ -53,7 +220,7 @@ public class Day10 {
         return lines;
     }
 
-    private static Set<Pair<Integer, Integer>> findLoop(char[][] grid, int startRow, int startCol) {
+    private static List<Point> findPiles(char[][] grid, int startRow, int startCol) {
         int prevRow = startRow;
         int prevCol = startCol;
         int currRow = 0;
@@ -74,12 +241,10 @@ public class Day10 {
             currCol = startCol + 1;
         }
 
-        Set<Pair<Integer, Integer>> loopPoints = new LinkedHashSet<>();
-        loopPoints.add(Pair.of(startRow, startCol));
+        List<Point> piles = new ArrayList<>();
+        piles.add(new Point(startRow, startCol, 'S', currRow - startRow, currCol - startCol));
 
         do {
-            loopPoints.add(Pair.of(currRow, currCol));
-
             var currPipe = grid[currRow][currCol];
             var rowTemp = currRow;
             var colTemp = currCol;
@@ -96,66 +261,47 @@ public class Day10 {
                 colTemp -= currRow - prevRow;
             }
 
+            piles.add(new Point(currRow, currCol, grid[currRow][currCol], rowTemp - currRow, colTemp - currCol));
             prevRow = currRow;
             prevCol = currCol;
             currRow = rowTemp;
             currCol = colTemp;
         } while (currRow != startRow || currCol != startCol);
 
-        return loopPoints;
+        return piles;
     }
 
-    private static int findEnclosedArea(boolean[][] grid, Set<Pair<Integer, Integer>> wallPoints) {
+    private static int floodFillCount(int[][] grid) {
         int rows = grid.length;
         int cols = grid[0].length;
         boolean[][] visited = new boolean[rows][cols];
+        int count = 0;
 
-        // Mark the wall points as visited
-        for (Pair<Integer, Integer> wp : wallPoints) {
-            visited[wp.getLeft()][wp.getRight()] = true;
-        }
-
-        // Convert the wallPoints to a list to access by index
-        List<Pair<Integer, Integer>> wallPointsList = new ArrayList<>(wallPoints);
-
-        // Find a point inside the wall to start
-        Pair<Integer, Integer> insidePoint = getInsidePoint(wallPointsList, rows, cols);
-        if (insidePoint == null) {
-            return 0; // No inside point found, no enclosed area
-        }
-
-        // Perform flood fill from the found inside point
-        return floodFill(grid, visited, insidePoint.getLeft(), insidePoint.getRight());
-    }
-
-    private static Pair<Integer, Integer> getInsidePoint(List<Pair<Integer, Integer>> wallPointsList, int rows, int cols) {
-        for (int i = 0; i < wallPointsList.size(); i++) {
-            Pair<Integer, Integer> current = wallPointsList.get(i);
-            Pair<Integer, Integer> next = wallPointsList.get((i + 1) % wallPointsList.size());
-            // Create a point to the left of the midpoint of the current wall segment
-            int midX = (current.getLeft() + next.getLeft()) / 2;
-            int midY = (current.getRight() + next.getRight()) / 2;
-            Pair<Integer, Integer> testPoint = Pair.of(midX - 1, midY);
-            if (testPoint.getLeft() >= 0 && !isWall(testPoint, wallPointsList)) {
-                return testPoint;
+        // Start flood fill for each cell that are already marked
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (grid[i][j] == 2 && !visited[i][j]) {
+                    count += floodFill(grid, visited, i, j);
+                }
             }
         }
-        return null;
+
+        return count;
     }
 
-    private static boolean isWall(Pair<Integer, Integer> point, List<Pair<Integer, Integer>> wallPointsList) {
-        return wallPointsList.contains(point);
-    }
-
-    private static int floodFill(boolean[][] grid, boolean[][] visited, int x, int y) {
-        if (x < 0 || x >= grid.length || y < 0 || y >= grid[0].length || visited[x][y] || grid[x][y]) {
+    // Flood fill algorithm
+    private static int floodFill(int[][] grid, boolean[][] visited, int x, int y) {
+        if (x < 0 || x >= grid.length || y < 0 || y >= grid[0].length || grid[x][y] == 1 || visited[x][y]) {
             return 0;
         }
-        visited[x][y] = true;
+
+        visited[x][y] = true;  // Mark the cell as visited
+
         int area = 1;
-        for (int i = 0; i < dx.length; i++) {
-            area += floodFill(grid, visited, x + dx[i], y + dy[i]);
+        for (int dir = 0; dir < 4; dir++) {
+            area += floodFill(grid, visited, x + dx[dir], y + dy[dir]);
         }
+
         return area;
     }
 
