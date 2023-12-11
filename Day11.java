@@ -1,5 +1,3 @@
-package com.alibaba.logistics.station;
-
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.FileReader;
@@ -8,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-public class Test {
+public class Day11 {
 
     public static void main(String[] args) {
         char[][] grid = readFileToGrid();
