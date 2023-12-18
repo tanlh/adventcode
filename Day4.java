@@ -1,13 +1,9 @@
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+package com.alibaba.logistics.station;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.Arrays;
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Day4 {
 
@@ -15,13 +11,9 @@ public class Day4 {
         Map<Integer, Integer> resultMap = new HashMap<>();
         var gameIndex = 1;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("file.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                calculateCard(line, resultMap, gameIndex);
-                gameIndex++;
-            }
-        } catch (Exception ignored) {
+        for (var line : Util.readFileToLines()) {
+            calculateCard(line, resultMap, gameIndex);
+            gameIndex++;
         }
 
         var sum = resultMap.values().stream().reduce(0, Integer::sum);
@@ -30,8 +22,8 @@ public class Day4 {
 
     private static void calculateCard(String line, Map<Integer, Integer> result, int gameIndex) {
         var parts = line.split(":")[1].split("\\|");
-        var resultCards = cardToValues(parts[0]);
-        var myCards = cardToValues(parts[1]);
+        var resultCards = Util.splitLine(parts[0], " ");
+        var myCards = Util.splitLine(parts[1], " ");
         var numberOfWinCards = CollectionUtils.intersection(resultCards, myCards).size();
 
         // Already scratch this card, so increase 1 scratch
@@ -41,13 +33,6 @@ public class Day4 {
             // Increase win cards
             result.put(k, result.getOrDefault(k, 0) + result.get(gameIndex));
         }
-    }
-
-    private static List<String> cardToValues(String card) {
-        return Arrays.stream(card.split(" "))
-            .map(String::trim)
-            .filter(StringUtils::isNotBlank)
-            .collect(Collectors.toList());
     }
 
 }
