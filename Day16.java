@@ -1,17 +1,16 @@
-import lombok.SneakyThrows;
+package com.alibaba.logistics.station;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
+import lombok.AllArgsConstructor;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
 
 public class Day16 {
 
     public static void main(String[] args) {
-        var grid = readFileToGrid();
-        System.out.println("Energized tiles: " + findMaxEnergizedConfiguration(grid));
-    }
-
-    private static int findMaxEnergizedConfiguration(char[][] grid) {
+        var grid = Util.readFileToGrid();
         int rows = grid.length;
         int cols = grid[0].length;
         int maxEnergized = 0;
@@ -19,32 +18,17 @@ public class Day16 {
         for (int y = 0; y < cols; y++) {
             maxEnergized = Math.max(maxEnergized, countEnergizedTiles(grid, 0, y, 1, 0));
         }
-
         for (int y = 0; y < cols; y++) {
             maxEnergized = Math.max(maxEnergized, countEnergizedTiles(grid, rows - 1, y, -1, 0));
         }
-
         for (int x = 0; x < rows; x++) {
             maxEnergized = Math.max(maxEnergized, countEnergizedTiles(grid, x, 0, 0, 1));
         }
-
         for (int x = 0; x < rows; x++) {
             maxEnergized = Math.max(maxEnergized, countEnergizedTiles(grid, x, cols - 1, 0, -1));
         }
 
-        return maxEnergized;
-    }
-
-    @SneakyThrows
-    private static char[][] readFileToGrid() {
-        List<String> lines = Files.readAllLines(Path.of("file.txt"));
-
-        char[][] grid = new char[lines.size()][];
-        for (int i = 0; i < lines.size(); i++) {
-            grid[i] = lines.get(i).toCharArray();
-        }
-
-        return grid;
+        System.out.println("Result: " + maxEnergized);
     }
 
     private static int countEnergizedTiles(char[][] grid, int startX, int startY, int startDx, int startDy) {
@@ -73,7 +57,6 @@ public class Day16 {
             var tile = grid[beam.x][beam.y];
             if (tile == '/' || tile == '\\') {
                 beam.reflect(tile);
-                beam.move();
                 beams.add(beam);
             } else if (tile == '|' && beam.dy != 0) {
                 beams.add(new Beam(beam.x, beam.y, beam.dy, 0));
@@ -90,16 +73,9 @@ public class Day16 {
         return energizedTiles.size();
     }
 
-
-    private static class Beam {
+    @AllArgsConstructor
+    static class Beam {
         int x, y, dx, dy;
-
-        Beam(int x, int y, int dx, int dy) {
-            this.x = x;
-            this.y = y;
-            this.dx = dx;
-            this.dy = dy;
-        }
 
         void move() {
             x += dx;
@@ -116,6 +92,7 @@ public class Day16 {
                 dy = dx;
                 dx = oldDy;
             }
+            this.move();
         }
     }
 
