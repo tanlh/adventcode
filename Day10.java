@@ -1,40 +1,22 @@
+package com.alibaba.logistics.station;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class Day10 {
 
-    @Data
-    @AllArgsConstructor
-    public static class Point {
-        private int row;
-        private int col;
-        @EqualsAndHashCode.Exclude
-        private char symbol;
-        @EqualsAndHashCode.Exclude
-        private int rowDiff;
-        @EqualsAndHashCode.Exclude
-        private int colDiff;
-
-        public static Point of(int row, int col) {
-            return new Point(row, col, ' ', 0, 0);
-        }
-    }
-
-    // Arrays to represent the change in coordinates when moving in each of the four directions
-    private static final int[] dx = {0, 1, 0, -1}; // Changes in the row index for right, down, left, up
-    private static final int[] dy = {1, 0, -1, 0}; // Changes in the column index for right, down, left, up
+    static final int[] dx = {0, 1, 0, -1};
+    static final int[] dy = {1, 0, -1, 0};
 
     public static void main(String[] args) {
-        var lines = readFileToLines();
+        var lines = Util.readFileToLines();
         var rows = lines.size();
         var cols = lines.get(0).length();
-        char[][] grid = new char[rows][cols];
+        var grid = new char[rows][cols];
 
         var startRow = 0;
         var startCol = 0;
@@ -62,33 +44,16 @@ public class Day10 {
         }
 
         markAdjacent(rows, cols, piles, markedGrid);
-
-        print2DArray(markedGrid);
-
-        int area = floodFillCount(markedGrid);
-        int otherArea = rows * cols - area - piles.size();
+        var area = floodFillCount(markedGrid);
+        var otherArea = rows * cols - area - piles.size();
         System.err.println("Area: " + area);
         System.err.println("Other: " + otherArea);
-    }
-
-    public static void print2DArray(int[][] array) {
-        System.err.println(array.length + " " + array[0].length);
-        for (int[] row : array) {
-            for (int item : row) {
-                System.out.print(item + " ");
-            }
-            System.out.println(); // Newline after each row
-        }
     }
 
     // This is the hack that my friend told me
     // With the piles in hand, we go through each cell and mark the cell on the left of it (in the current direction)
     // After that we can start the flood fill from these marked cell. It doesn't matter the marked cell is inside or outside the piles
     private static void markAdjacent(int rows, int cols, List<Point> piles, int[][] markedGrid) {
-        // Don't know how to fill the adjacent for the S
-        // Need manual input here for the S - Damn :))))
-        // Luckily, all the samples and file input doesn't have the case that surrounding S is not a piles cell
-
         for (int i = 1; i < piles.size(); i++) {
             var curr = piles.get(i);
             if (curr.symbol == '|') {
@@ -208,18 +173,6 @@ public class Day10 {
         }
     }
 
-    private static List<String> readFileToLines() {
-        List<String> lines = new ArrayList<>();
-
-        try (var scanner = new Scanner(new File("file.txt"))) {
-            while (scanner.hasNextLine()) {
-                lines.add(scanner.nextLine());
-            }
-        } catch (Exception ignored) {
-        }
-        return lines;
-    }
-
     private static List<Point> findPiles(char[][] grid, int startRow, int startCol) {
         int prevRow = startRow;
         int prevCol = startCol;
@@ -249,16 +202,23 @@ public class Day10 {
             var rowTemp = currRow;
             var colTemp = currCol;
 
-            if (currPipe == '-') { // Up/Down
-                colTemp += currCol - prevCol;
-            } else if (currPipe == '|') { // Left/Right
-                rowTemp += currRow - prevRow;
-            } else if (currPipe == 'L' || currPipe == '7') { // Top-Left/Bottom-Right
-                rowTemp += currCol - prevCol;
-                colTemp += currRow - prevRow;
-            } else if (currPipe == 'J' || currPipe == 'F') { // Top-Right/Bottom-Left
-                rowTemp -= currCol - prevCol;
-                colTemp -= currRow - prevRow;
+            switch (currPipe) {
+                case '-':
+                    colTemp += currCol - prevCol;
+                    break;
+                case '|':
+                    rowTemp += currRow - prevRow;
+                    break;
+                case 'L':
+                case '7':
+                    rowTemp += currCol - prevCol;
+                    colTemp += currRow - prevRow;
+                    break;
+                case 'J':
+                case 'F':
+                    rowTemp -= currCol - prevCol;
+                    colTemp -= currRow - prevRow;
+                    break;
             }
 
             piles.add(new Point(currRow, currCol, grid[currRow][currCol], rowTemp - currRow, colTemp - currCol));
@@ -277,7 +237,6 @@ public class Day10 {
         boolean[][] visited = new boolean[rows][cols];
         int count = 0;
 
-        // Start flood fill for each cell that are already marked
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 if (grid[i][j] == 2 && !visited[i][j]) {
@@ -289,13 +248,12 @@ public class Day10 {
         return count;
     }
 
-    // Flood fill algorithm
     private static int floodFill(int[][] grid, boolean[][] visited, int x, int y) {
         if (x < 0 || x >= grid.length || y < 0 || y >= grid[0].length || grid[x][y] == 1 || visited[x][y]) {
             return 0;
         }
 
-        visited[x][y] = true;  // Mark the cell as visited
+        visited[x][y] = true;
 
         int area = 1;
         for (int dir = 0; dir < 4; dir++) {
@@ -303,6 +261,21 @@ public class Day10 {
         }
 
         return area;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @EqualsAndHashCode(exclude = {"symbol", "rowDiff", "colDiff"})
+    static class Point {
+        int row;
+        int col;
+        char symbol;
+        int rowDiff;
+        int colDiff;
+
+        public static Point of(int row, int col) {
+            return new Point(row, col, ' ', 0, 0);
+        }
     }
 
 }
