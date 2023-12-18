@@ -1,27 +1,22 @@
+package com.alibaba.logistics.station;
+
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 public class Day11 {
 
     public static void main(String[] args) {
-        char[][] grid = readFileToGrid();
+        var grid = Util.readFileToGrid();
 
         List<Integer> emptyRows = new ArrayList<>();
         List<Integer> emptyCols = new ArrayList<>();
         List<Pair<Integer, Integer>> galaxies = new ArrayList<>();
         traversalGrid(grid, emptyRows, emptyCols, galaxies);
 
-        System.err.println(emptyRows);
-        System.err.println(emptyCols);
-        System.err.println(galaxies);
-
         var sum = 0L;
-
         for (int i = 0; i < galaxies.size() - 1; i++) {
             for (int j = i + 1; j < galaxies.size(); j++) {
                 var g1 = galaxies.get(i);
@@ -43,12 +38,11 @@ public class Day11 {
         System.err.println("Sum: " + sum);
     }
 
-    private static void traversalGrid(char[][] grid, List<Integer> doubleRows, List<Integer> doubleCols, List<Pair<Integer, Integer>> galaxies) {
-        int rows = grid.length;
-        int cols = grid[0].length;
-
-        Boolean[] rowsOnlyDots = new Boolean[rows];
-        Boolean[] colsOnlyDots = new Boolean[cols];
+    private static void traversalGrid(char[][] grid, List<Integer> emptyRows, List<Integer> emptyCols, List<Pair<Integer, Integer>> galaxies) {
+        var rows = grid.length;
+        var cols = grid[0].length;
+        var rowsOnlyDots = new Boolean[rows];
+        var colsOnlyDots = new Boolean[cols];
         Arrays.fill(rowsOnlyDots, true);
         Arrays.fill(colsOnlyDots, true);
 
@@ -64,31 +58,14 @@ public class Day11 {
 
         for (int i = 0; i < rows; i++) {
             if (rowsOnlyDots[i]) {
-                doubleRows.add(i);
+                emptyRows.add(i);
             }
         }
 
         for (int j = 0; j < cols; j++) {
             if (colsOnlyDots[j]) {
-                doubleCols.add(j);
+                emptyCols.add(j);
             }
         }
     }
-
-    private static char[][] readFileToGrid() {
-        List<String> lines = new ArrayList<>();
-        try (Scanner scanner = new Scanner(new FileReader("file.txt"))) {
-            while (scanner.hasNext()) {
-                lines.add(scanner.nextLine());
-            }
-        } catch (Exception ignored) {}
-
-        char[][] grid = new char[lines.size()][];
-        for (int i = 0; i < lines.size(); i++) {
-            grid[i] = lines.get(i).toCharArray();
-        }
-
-        return grid;
-    }
-
 }
