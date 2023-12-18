@@ -1,9 +1,11 @@
+package com.alibaba.logistics.station;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.util.Map.entry;
@@ -27,21 +29,18 @@ public class Day7 {
     );
 
     public static void main(String[] args) {
-        List<Hand> hands = new ArrayList<>();
-
-        try (var scanner = new Scanner(new File("file.txt"))) {
-            while (scanner.hasNextLine()) {
-                var line = scanner.nextLine();
+        var sortedHands = Util.readFileToLines().stream()
+            .map(line -> {
                 var parts = line.split(" ");
-                hands.add(new Hand(parts[0], Integer.parseInt(parts[1])));
-            }
-        } catch (Exception ignored) {}
+                return new Hand(parts[0], Integer.parseInt(parts[1]));
+            })
+            .sorted()
+            .collect(Collectors.toList());
 
-        Collections.sort(hands);
-        System.err.println("Hands sorted: " + hands);
+        System.err.println("Hands sorted: " + sortedHands);
 
-        int totalWinnings = IntStream.range(0, hands.size())
-            .map(i -> hands.get(i).getBid() * (i + 1))
+        var totalWinnings = IntStream.range(0, sortedHands.size())
+            .map(i -> sortedHands.get(i).getBid() * (i + 1))
             .sum();
         System.out.println("Total winnings: " + totalWinnings);
     }
@@ -50,8 +49,8 @@ public class Day7 {
     @Getter
     @ToString
     static class Hand implements Comparable<Hand> {
-        private String hand;
-        private int bid;
+        String hand;
+        int bid;
 
         private int getRank() {
             // Case hand by default is 5 of kind
