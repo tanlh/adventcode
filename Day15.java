@@ -1,24 +1,22 @@
-import java.nio.file.Files;
-import java.nio.file.Path;
+package com.alibaba.logistics.station;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Day15 {
 
-    public static void main(String[] args) throws Exception {
-        String[] steps = Files.readAllLines(Path.of("file.txt")).get(0).split(",");
-
-        var sum = 0;
+    public static void main(String[] args) {
+        var steps = Util.readFileToLines().get(0).split(",");
+        var sum1 = 0;
         Map<Integer, Map<String, Integer>> boxes = new LinkedHashMap<>();
 
         for (var step : steps) {
-            sum += hash(step); // part 1
+            sum1 += hash(step); // part 1
             processStep(step, boxes);
         }
 
-        System.err.println("Sum: " + sum);
-        System.err.println(boxes);
+        System.err.println("Sum part 1: " + sum1);
 
         AtomicInteger sum2 = new AtomicInteger();
         boxes.forEach((box, lenMap) -> {
@@ -29,7 +27,7 @@ public class Day15 {
             });
         });
 
-        System.err.println("Sum2: " + sum2);
+        System.err.println("Sum part 2: " + sum2);
     }
 
     private static void processStep(String step, Map<Integer, Map<String, Integer>> boxes) {
