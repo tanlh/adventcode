@@ -1,16 +1,18 @@
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
+package com.alibaba.logistics.station;
 
-public class Test {
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-    private static final int COPIES = 5; // Number of times to repeat the pattern and groups
-    private static final Map<String, Long> memo = new HashMap<>();
+public class Day12 {
+
+    static final int COPIES = 5; // Number of times to repeat the pattern and groups
+    static final Map<String, Long> memo = new HashMap<>();
 
     public static void main(String[] args) throws Exception {
-        var totalArrangements = Files.readAllLines(Paths.get("file.txt"))
-            .stream()
-            .map(Test::countArrangements)
+        var totalArrangements = Util.readFileToLines().stream()
+            .map(Day12::countArrangements)
             .reduce(0L, Long::sum);
         System.err.println("Total number of arrangements: " + totalArrangements);
     }
@@ -27,8 +29,7 @@ public class Test {
     }
 
     private static long countArrangements(String pattern, int[] groups, int index, int groupIndex, int damagedCount, boolean prevDamaged) {
-        // Check if the result is already computed.
-        String memoKey = getMemoKey(index, groupIndex, damagedCount, prevDamaged);
+        var memoKey = index + "-" + groupIndex + "-" + damagedCount + "-" + prevDamaged;
         if (memo.containsKey(memoKey)) {
             return memo.get(memoKey);
         }
@@ -49,8 +50,8 @@ public class Test {
             return (groupIndex == groups.length - 1 && damagedCount == groups[groupIndex]) ? 1 : 0;
         }
 
-        char current = pattern.charAt(index);
-        long count = 0;
+        var current = pattern.charAt(index);
+        var count = 0L;
 
         // When the current character is unknown or damaged, and we have not exceeded the group size
         if ((current == '?' || current == '#') && damagedCount < groups[groupIndex]) {
@@ -68,10 +69,6 @@ public class Test {
         // Save the computed result.
         memo.put(memoKey, count);
         return count;
-    }
-
-    private static String getMemoKey(int index, int groupIndex, int damagedCount, boolean prevDamaged) {
-        return index + "-" + groupIndex + "-" + damagedCount + "-" + prevDamaged;
     }
 
 }
