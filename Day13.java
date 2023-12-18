@@ -1,8 +1,7 @@
-import lombok.SneakyThrows;
+package com.alibaba.logistics.station;
+
 import org.apache.commons.collections4.ListUtils;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,7 +10,7 @@ import java.util.stream.IntStream;
 public class Day13 {
 
     public static void main(String[] args) {
-        List<List<String>> blocks = readFileToBlocks();
+        var blocks = Util.readFileToBlocks();
         var sumLeft = 0;
         var sumAbove = 0;
         var smudgeLeft = 0;
@@ -19,13 +18,13 @@ public class Day13 {
 
         for (var block : blocks) {
             var left = findReflectIndex(block, 0);
-            var above = findReflectIndex(transformList(block), 0);
+            var above = findReflectIndex(rotate90Anticlockwise(block), 0);
             var sLeft = 0;
             var sAbove = 0;
 
             for (var sBlock : generateCombinations(block)) {
                 sLeft = findReflectIndex(sBlock, left);
-                sAbove = findReflectIndex(transformList(sBlock), above);
+                sAbove = findReflectIndex(rotate90Anticlockwise(sBlock), above);
                 if (sLeft > 0) {
                     break;
                 }
@@ -64,7 +63,7 @@ public class Day13 {
         return allCombinations;
     }
 
-    private static List<String> transformList(List<String> inputList) {
+    private static List<String> rotate90Anticlockwise(List<String> inputList) {
         List<String> resultList = new ArrayList<>();
         var length = inputList.get(0).length();
         for (int i = length - 1; i >= 0; i--) {
@@ -107,31 +106,6 @@ public class Day13 {
             .filter(i -> i != originIndex)
             .findFirst()
             .orElse(0);
-    }
-
-    @SneakyThrows
-    private static List<List<String>> readFileToBlocks() {
-        List<List<String>> blocks = new ArrayList<>();
-
-        List<String> lines = Files.readAllLines(Paths.get("file.txt"));
-        List<String> currentBlock = new ArrayList<>();
-
-        for (String line : lines) {
-            if (line.isEmpty()) {
-                if (!currentBlock.isEmpty()) {
-                    blocks.add(new ArrayList<>(currentBlock));
-                    currentBlock.clear();
-                }
-            } else {
-                currentBlock.add(line);
-            }
-        }
-
-        if (!currentBlock.isEmpty()) {
-            blocks.add(currentBlock);
-        }
-
-        return blocks;
     }
 
 }
