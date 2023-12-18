@@ -2,31 +2,23 @@ package com.alibaba.logistics.station;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Day8 {
 
     public static void main(String[] args) {
-        List<String> instructions = new ArrayList<>();
+        var lines = Util.readFileToLines();
+        var instructions = Util.splitLine(lines.get(0), "");
+        lines.remove(0);
+
         Map<String, Pair<String, String>> map = new LinkedHashMap<>();
-
-        try (var scanner = new Scanner(new File("file.txt"))) {
-            instructions = Arrays.asList(scanner.nextLine().split(""));
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                if (line.isEmpty()) {
-                    continue;
-                }
-
-                var parts = line.split("=");
-                var key = parts[0].trim();
-                var values = parts[1].replaceAll("[()]", "").split(",");
-                map.put(key, Pair.of(values[0].trim(), values[1].trim()));
-            }
-        } catch (Exception ignored) {
-        }
+        lines.forEach(line -> {
+            var parts = line.split("=");
+            var key = parts[0].trim();
+            var values = parts[1].replaceAll("[()]", "").split(",");
+            map.put(key, Pair.of(values[0].trim(), values[1].trim()));
+        });
 
         // [GNA, FCA, AAA, MXA, VVA, XHA]
         var startNodes = map.keySet().stream()
@@ -58,7 +50,7 @@ public class Day8 {
         generateCombinations(zStepList, new ArrayList<>(), 0, combinations);
 
         var minSteps = combinations.stream()
-            .map(Test::findLCM)
+            .map(Day8::findLCM)
             .min(Comparator.naturalOrder())
             .get();
         // var minSteps = findLCM(List.of(20093, 12169, 22357, 14999, 13301, 17263));
