@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -54,20 +55,18 @@ public class Util {
     }
 
     public List<String> splitLine(String line, String splitter) {
+        return parseLine(line, splitter, Function.identity());
+    }
+
+    public <T> List<T> parseLine(String line, String splitter, Function<String, T> mapping) {
         return Arrays.stream(line.split(splitter))
             .map(String::trim)
             .filter(StringUtils::isNotBlank)
+            .map(mapping)
             .collect(Collectors.toList());
     }
 
-    public List<Long> parseLineToLongs(String line, String splitter) {
-        return Arrays.stream(line.split(splitter))
-            .filter(StringUtils::isNotBlank)
-            .map(Long::parseLong)
-            .collect(Collectors.toList());
-    }
-
-    public static long findLCM(List<Integer> numbers) {
+    public long findLCM(List<Integer> numbers) {
         long lcm = numbers.get(0);
         for (int i = 1; i < numbers.size(); i++) {
             lcm = calculateLCM(lcm, numbers.get(i));
@@ -75,11 +74,11 @@ public class Util {
         return lcm;
     }
 
-    private static long calculateLCM(long a, long b) {
+    private long calculateLCM(long a, long b) {
         return (a * b) / calculateGCD(a, b);
     }
 
-    private static long calculateGCD(long a, long b) {
+    private long calculateGCD(long a, long b) {
         return b == 0 ? a : calculateGCD(b, a % b);
     }
 
