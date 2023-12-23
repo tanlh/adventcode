@@ -9,7 +9,7 @@ public class Day9 {
 
     public static void main(String[] args) {
         var histories = Util.readFileToLines().stream()
-            .map(line -> Util.parseLineToLongs(line, " "))
+            .map(line -> Util.parseLine(line, " ", Long::parseLong))
             .collect(Collectors.toList());
 
         var sumNext = histories.stream()
