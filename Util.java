@@ -55,6 +55,7 @@ public class Util {
 
     public List<String> splitLine(String line, String splitter) {
         return Arrays.stream(line.split(splitter))
+            .map(String::trim)
             .filter(StringUtils::isNotBlank)
             .collect(Collectors.toList());
     }
@@ -64,6 +65,22 @@ public class Util {
             .filter(StringUtils::isNotBlank)
             .map(Long::parseLong)
             .collect(Collectors.toList());
+    }
+
+    public static long findLCM(List<Integer> numbers) {
+        long lcm = numbers.get(0);
+        for (int i = 1; i < numbers.size(); i++) {
+            lcm = calculateLCM(lcm, numbers.get(i));
+        }
+        return lcm;
+    }
+
+    private static long calculateLCM(long a, long b) {
+        return (a * b) / calculateGCD(a, b);
+    }
+
+    private static long calculateGCD(long a, long b) {
+        return b == 0 ? a : calculateGCD(b, a % b);
     }
 
 }
