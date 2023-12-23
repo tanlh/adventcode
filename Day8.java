@@ -50,7 +50,7 @@ public class Day8 {
         generateCombinations(zStepList, new ArrayList<>(), 0, combinations);
 
         var minSteps = combinations.stream()
-            .map(Day8::findLCM)
+            .map(Util::findLCM)
             .min(Comparator.naturalOrder())
             .get();
         // var minSteps = findLCM(List.of(20093, 12169, 22357, 14999, 13301, 17263));
@@ -72,21 +72,4 @@ public class Day8 {
             currentCombination.remove(currentCombination.size() - 1);
         }
     }
-
-    private static long findLCM(List<Integer> numbers) {
-        long lcm = numbers.get(0);
-        for (int i = 1; i < numbers.size(); i++) {
-            lcm = calculateLCM(lcm, numbers.get(i));
-        }
-        return lcm;
-    }
-
-    private static long calculateLCM(long a, long b) {
-        return (a * b) / calculateGCD(a, b);
-    }
-
-    private static long calculateGCD(long a, long b) {
-        return b == 0 ? a : calculateGCD(b, a % b);
-    }
-
 }
