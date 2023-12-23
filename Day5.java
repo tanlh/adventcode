@@ -21,7 +21,7 @@ public class Day5 {
 
             for (var prevRange : prevRanges) {
                 for (int i = 1; i < block.size(); i++) { // ignore first line of group which is a-to-b
-                    var currMapping = Util.parseLineToLongs(block.get(i), " ");
+                    var currMapping = Util.parseLine(block.get(i), " ", Long::parseLong);
                     var desStart = currMapping.get(0);
                     var srcStart = currMapping.get(1);
                     var range = currMapping.get(2);
@@ -57,7 +57,7 @@ public class Day5 {
     }
 
     private static List<Range> buildSeedRanges(List<List<String>> mappingGroups) {
-        var seeds = Util.parseLineToLongs(mappingGroups.get(0).get(0).split(":")[1], " ");
+        var seeds = Util.parseLine(mappingGroups.get(0).get(0).split(":")[1], " ", Long::parseLong);
         List<Range> seedRanges = new ArrayList<>();
 
         for (int i = 0; i < seeds.size() - 1; i += 2) {
