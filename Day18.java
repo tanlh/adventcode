@@ -14,7 +14,7 @@ public class Day18 {
         var instructions = parseInstructions();
         var vertices = parseVertices(instructions);
         var area = IntStream.range(0, vertices.size() - 1)
-            .mapToDouble(i -> {
+            .mapToLong(i -> {
                 var p1 = vertices.get(i);
                 var p2 = vertices.get(i + 1);
                 return (p1.x * p2.y) - (p2.x * p1.y);
@@ -22,13 +22,13 @@ public class Day18 {
             .sum();
         var perimeter = instructions.stream()
             .map(Instruction::getDistance)
-            .reduce(0D, Double::sum);
+            .reduce(0L, Long::sum);
 
         /**
          * Pick's theorem
          */
         var result = Math.abs(area) / 2 + (perimeter / 2) + 1;
-        System.err.println("Result: " + (long) result);
+        System.err.println("Result: " + result);
     }
 
     private static List<Instruction> parseInstructions() {
@@ -40,7 +40,7 @@ public class Day18 {
 //                var distance = Integer.parseInt(parts[1]);
                 // part 2
                 var direction = parts[2].charAt(7);
-                var distance = (double) Integer.parseInt(parts[2].substring(2, 7), 16);
+                var distance = Long.parseLong(parts[2].substring(2, 7), 16);
                 return new Instruction(direction, distance);
             })
             .collect(Collectors.toList());
@@ -65,15 +65,15 @@ public class Day18 {
     @Data
     @AllArgsConstructor
     static class Point {
-        double x, y;
+        long x, y;
     }
 
     @Data
     static class Instruction {
         char direction;
-        double distance;
+        long distance;
 
-        public Instruction(char direction, double distance) {
+        public Instruction(char direction, long distance) {
             switch (direction) {
                 case '0': this.direction = 'R'; break;
                 case '1': this.direction = 'D'; break;
