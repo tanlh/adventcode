@@ -17,7 +17,7 @@ public class Day18 {
             .mapToLong(i -> {
                 var p1 = vertices.get(i);
                 var p2 = vertices.get(i + 1);
-                return (p1.x * p2.y) - (p2.x * p1.y);
+                return p1.x * p2.y - p2.x * p1.y;
             })
             .sum();
         var perimeter = instructions.stream()
