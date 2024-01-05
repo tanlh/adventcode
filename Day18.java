@@ -13,6 +13,10 @@ public class Day18 {
     public static void main(String[] args) {
         var instructions = parseInstructions();
         var vertices = parseVertices(instructions);
+
+        /**
+         * This is Shoelace formula
+         */
         var area = IntStream.range(0, vertices.size() - 1)
             .mapToLong(i -> {
                 var p1 = vertices.get(i);
@@ -20,14 +24,25 @@ public class Day18 {
                 return p1.x * p2.y - p2.x * p1.y;
             })
             .sum();
-        var perimeter = instructions.stream()
+        area = Math.abs(area) / 2;
+
+        var boundary = instructions.stream()
             .map(Instruction::getDistance)
             .reduce(0L, Long::sum);
 
         /**
-         * Pick's theorem
+         * Now, based on the shoelace formula, we have the area of polygon, but the point is in the middle
+         * of coordinate square. We are missing the other half of each square.
+         *
+         * Here comes the Pick's theorem: A = i + b / 2 - 1
+         * - A: area of polygon
+         * - i: inside points
+         * - b: boundary point, asy to calculate, it's the sum of all the step
+         * => We can find completely inside points: i = A - b/2 + 1
+         * => Finally, just add the boundary points
+         * => result = i + b = A - b/2 + 1 + b = A + b/2 + 1
          */
-        var result = Math.abs(area) / 2 + (perimeter / 2) + 1;
+        var result = area + (boundary / 2) + 1;
         System.err.println("Result: " + result);
     }
 
@@ -49,7 +64,6 @@ public class Day18 {
     private static List<Point> parseVertices(List<Instruction> instructions) {
         int x = 0, y = 0;
         List<Point> vertices = new ArrayList<>();
-        vertices.add(new Point(x, y));
 
         for (var instr : instructions) {
             var dx = instr.direction == 'L' ? -1 : instr.direction == 'R' ? 1 : 0;
