@@ -1,4 +1,4 @@
-package com.alibaba.logistics.station;
+package util;
 
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;

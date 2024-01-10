@@ -1,15 +1,16 @@
-package com.alibaba.logistics.station;
+package _2023;
 
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.scoring.EdgeBetweennessCentrality;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
+import util.Util;
 
 import java.util.Map;
 import java.util.function.Function;
 
-public class Test {
+public class Day25 {
 
     /**
      * NOTE: Use JGraphT library

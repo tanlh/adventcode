@@ -1,0 +1,12 @@
+### IntelliJ ###
+.idea/
+*.iml
+
+### Mac OS ###
+.DS_store
+.DS_store?
+
+### Build folder ###
+target/
+
+*.sh
