@@ -17,7 +17,7 @@ public class Util {
 
     @SneakyThrows
     public List<String> readFileToLines() {
-        return Files.readAllLines(Paths.get("file.txt"));
+        return Files.readAllLines(Paths.get("input.txt"));
     }
 
     public List<List<String>> readFileToBlocks() {
