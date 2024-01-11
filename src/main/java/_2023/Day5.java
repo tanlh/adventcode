@@ -21,21 +21,23 @@ public class Day5 {
             var block = blocks.get(gIndx);
 
             for (var prevRange : prevRanges) {
-                for (int i = 1; i < block.size(); i++) { // ignore first line of group which is a-to-b
+                // ignore first line of group which is a-to-b
+                for (int i = 1; i < block.size(); i++) {
                     var currMapping = Util.parseLine(block.get(i), " ", Long::parseLong);
                     var desStart = currMapping.get(0);
                     var srcStart = currMapping.get(1);
                     var range = currMapping.get(2);
                     var mappingRange = new Range(srcStart, srcStart + range - 1, desStart - srcStart);
 
-                    var overlapRange = prevRange.getOverlap(mappingRange);
+                    var overlapRange = prevRange.intersect(mappingRange);
                     if (overlapRange != null) {
                         currRanges.add(overlapRange);
                     }
                 }
             }
 
-            if (currRanges.isEmpty()) { // no overlapping
+            // no overlapping
+            if (currRanges.isEmpty()) {
                 currRanges.addAll(prevRanges);
             } else {
                 // add the non-overlapping ranges
@@ -99,7 +101,7 @@ public class Day5 {
     @Data
     @EqualsAndHashCode
     @AllArgsConstructor
-    public static class Range {
+    static class Range {
         long min;
         long max;
         @EqualsAndHashCode.Exclude
@@ -109,15 +111,10 @@ public class Day5 {
             new Range(min, max, 0);
         }
 
-        public Range getOverlap(Range other) {
-            long overlapMin = Math.max(this.min, other.min);
-            long overlapMax = Math.min(this.max, other.max);
-
-            if (overlapMin <= overlapMax) {
-                return new Range(overlapMin, overlapMax, other.desSrcDiff);
-            } else {
-                return null;
-            }
+        public Range intersect(Range other) {
+            var overlapMin = Math.max(this.min, other.min);
+            var overlapMax = Math.min(this.max, other.max);
+            return overlapMin <= overlapMax ? new Range(overlapMin, overlapMax, other.desSrcDiff) : null;
         }
 
         public Range adjustDesSrcDiff() {

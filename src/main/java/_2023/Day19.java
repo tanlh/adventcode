@@ -1,8 +1,8 @@
 package _2023;
 
-import util.Util;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import util.Range;
+import util.Util;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -40,7 +40,7 @@ public class Day19 {
 
         AtomicLong part2 = new AtomicLong(0L);
         acceptedPathRanges.forEach(ranges ->
-            part2.addAndGet(ranges.stream().map(Range::count).reduce(1L, (c1, c2) -> c1 * c2))
+            part2.addAndGet(ranges.stream().map(r -> r.max - r.min + 1).reduce(1L, (c1, c2) -> c1 * c2))
         );
 
         System.err.println(acceptedPathRanges);
@@ -152,43 +152,6 @@ public class Day19 {
     static class Workflow {
         String name;
         List<Rule> rules;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class Range {
-        int min;
-        int max;
-
-        Range intersect(Range other) {
-            return new Range(Math.max(this.min, other.min), Math.min(this.max, other.max));
-        }
-
-        boolean overlaps(Range other) {
-            return this.min <= other.max && this.max >= other.min;
-        }
-
-        Range exclude(Range other) {
-            if (!this.overlaps(other)) {
-                return this;
-            }
-
-            if (other.min <= this.min) {
-                if (other.max >= this.max) {
-                    return null;
-                } else {
-                    return new Range(other.max + 1, this.max);
-                }
-            } else if (other.max >= this.max) {
-                return new Range(this.min, other.min - 1);
-            } else {
-                return null; // won't happen
-            }
-        }
-
-        long count() {
-            return max - min + 1;
-        }
     }
 
     static class Rule {
