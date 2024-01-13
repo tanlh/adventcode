@@ -37,7 +37,7 @@ public class Day5 {
         }
 
         var crates = stacks.stream().map(Deque::pollFirst).collect(Collectors.joining());
-        System.err.println("Part 1: " + crates);
+        System.err.println("Result: " + crates);
     }
 
     private static List<Deque<String>> parseStacks(List<String> stackConfig) {
