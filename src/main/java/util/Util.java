@@ -54,6 +54,20 @@ public class Util {
         return grid;
     }
 
+    public int[][] readFileToGridInt() {
+        var lines = readFileToLines();
+        var cols = lines.get(0).length();
+        var grid = new int[lines.size()][cols];
+        for (int i = 0; i < lines.size(); i++) {
+            var line = lines.get(i);
+            for (int j = 0; j < cols; j++) {
+                grid[i][j] = line.charAt(j) - '0';
+            }
+        }
+
+        return grid;
+    }
+
     public List<String> splitLine(String line, String splitter) {
         return parseLine(line, splitter, Function.identity());
     }
