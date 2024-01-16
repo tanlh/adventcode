@@ -1,7 +1,7 @@
 package _2023;
 
+import util.Point;
 import util.Util;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -75,12 +75,6 @@ public class Day18 {
         }
 
         return vertices;
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class Point {
-        long x, y;
     }
 
     @Data

@@ -1,8 +1,7 @@
 package _2023;
 
+import util.Point;
 import util.Util;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
 import java.util.*;
 
@@ -72,12 +71,6 @@ public class Day18Part1Floodfill {
 
         var boundaryArea = (Math.abs(minX - maxX) + 1) * (Math.abs(minY - maxY) + 1);
         return boundaryArea - outsidePoints.size();
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class Point {
-        int x, y;
     }
 
 }

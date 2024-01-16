@@ -1,10 +1,9 @@
 package _2023;
 
-import util.Util;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import util.Point;
+import util.Util;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -122,12 +121,6 @@ public class Day22 {
             var isJustAbove = this.startZ == other.endZ + 1;
             return overlapsX && overlapsY && isJustAbove;
         }
-    }
-
-    @Data
-    @AllArgsConstructor
-    static class Point {
-        int x, y;
     }
 
 }
