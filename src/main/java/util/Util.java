@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class Util {
@@ -77,7 +76,7 @@ public class Util {
             .map(String::trim)
             .filter(StringUtils::isNotBlank)
             .map(mapping)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     public long findLCM(List<Integer> numbers) {
