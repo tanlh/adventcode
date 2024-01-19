@@ -1,54 +1,21 @@
 package _2023;
 
+import util.Constants;
 import util.Util;
 import lombok.AllArgsConstructor;
 
 import java.util.Arrays;
 import java.util.PriorityQueue;
 
+import static util.Constants.DIRMAP;
+
 public class Day17 {
 
-    static final int[][] directions = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
-    static final char[] directionChars = {'<', '>', '^', 'v'};
     static final int minStep = 4;
     static final int maxStep = 10;
 
     public static void main(String[] args) {
-        var lines = Util.readFileToLines();
-        var grid = new int[lines.size()][lines.get(0).length()];
-
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-                grid[i][j] = Integer.parseInt(String.valueOf(lines.get(i).charAt(j)));
-            }
-        }
-
-        System.out.println(findMinimumHeatLoss(grid));
-    }
-
-    private static void printPath(Node endNode, int rows, int cols) {
-        char[][] path = new char[rows][cols];
-        for (char[] row : path) {
-            Arrays.fill(row, '.');
-        }
-
-        Node current = endNode;
-        while (current != null) {
-            path[current.x][current.y] = current.lastDirection;
-            current = current.previous;
-        }
-        path[0][0] = 'S';
-        path[rows - 1][cols - 1] = 'G';
-
-        for (char[] row : path) {
-            for (char c : row) {
-                System.out.print(c + " ");
-            }
-            System.out.println();
-        }
-    }
-
-    private static int findMinimumHeatLoss(int[][] map) {
+        var map = Util.readFileToGridInt();
         var rows = map.length;
         var cols = map[0].length;
         var bestHeatCost = new int[rows][cols][4][maxStep];
@@ -68,17 +35,18 @@ public class Day17 {
             var current = queue.poll();
 
             // Reach destination
-            if (current.x == rows - 1 && current.y == cols - 1) {
+            if (current.x == cols - 1 && current.y == rows - 1) {
                 if (endNode == null || current.heatCost < endNode.heatCost) {
                     endNode = current;
                 }
                 continue;
             }
 
-            var directionIndex = Arrays.binarySearch(directionChars, current.lastDirection);
-            for (int i = 0; i < directions.length; i++) {
+            var directionIndex = DIRMAP.getOrDefault(current.lastDirection, -1);
+            for (int i = 0; i < Constants.DIRECTIONS.length; i++) {
+                // cannot backward
                 if ((directionIndex == 0 && i == 1) || (directionIndex == 1 && i == 0)
-                    || (directionIndex == 2 && i == 3) || (directionIndex == 3 && i == 2)) continue; // cannot backward
+                    || (directionIndex == 2 && i == 3) || (directionIndex == 3 && i == 2)) continue;
 
                 var newX = current.x;
                 var newY = current.y;
@@ -88,11 +56,11 @@ public class Day17 {
                 var steps = changeDirection ? 0 : current.steps;
 
                 for (int j = 0; j < (changeDirection ? minStep : 1); j++) {
-                    newX += directions[i][0];
-                    newY += directions[i][1];
+                    newX += Constants.DIRECTIONS[i][0];
+                    newY += Constants.DIRECTIONS[i][1];
                     steps++;
 
-                    if (newX < 0 || newX >= rows || newY < 0 || newY >= cols) {
+                    if (newX < 0 || newX >= cols || newY < 0 || newY >= rows) {
                         outOfBounds = true;
                         break;
                     }
@@ -100,19 +68,37 @@ public class Day17 {
                     newHeatCost += map[newX][newY];
                 }
 
-                if (!outOfBounds && steps <= maxStep && newHeatCost < bestHeatCost[newX][newY][i][steps - 1]) {
-                    bestHeatCost[newX][newY][i][steps - 1] = newHeatCost;
-                    queue.add(new Node(newX, newY, newHeatCost, steps, directionChars[i], current));
+                if (!outOfBounds && steps <= maxStep && newHeatCost < bestHeatCost[newY][newX][i][steps - 1]) {
+                    bestHeatCost[newY][newX][i][steps - 1] = newHeatCost;
+                    queue.add(new Node(newX, newY, newHeatCost, steps, DIRMAP.inverse().get(i), current));
                 }
             }
         }
 
-        if (endNode != null) {
-            printPath(endNode, rows, cols);
-            return endNode.heatCost;
+        printPath(endNode, rows, cols);
+        System.out.println(endNode.heatCost);
+    }
+
+    private static void printPath(Node endNode, int rows, int cols) {
+        char[][] path = new char[rows][cols];
+        for (char[] row : path) {
+            Arrays.fill(row, '.');
         }
 
-        return -1;
+        Node current = endNode;
+        while (current != null) {
+            path[current.y][current.x] = current.lastDirection;
+            current = current.previous;
+        }
+        path[0][0] = 'S';
+        path[rows - 1][cols - 1] = 'G';
+
+        for (char[] row : path) {
+            for (char c : row) {
+                System.out.print(c + " ");
+            }
+            System.out.println();
+        }
     }
 
     @AllArgsConstructor

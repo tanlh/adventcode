@@ -5,9 +5,10 @@ import util.Util;
 
 import java.util.*;
 
-public class Day18Part1Floodfill {
+import static util.Constants.DIRECTIONS;
 
-    static int[][] DIRECTIONS = new int[][]{{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+public class Day18Part1FloodFill {
+
     static int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE;
     static int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE;
 

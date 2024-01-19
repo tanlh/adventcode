@@ -6,9 +6,10 @@ import lombok.Data;
 
 import java.util.*;
 
+import static util.Constants.DIRECTIONS;
+
 public class Day21 {
 
-    static final int[][] DIRECTIONS = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
     static long a, b, c;
 
     public static void main(String[] args) {
