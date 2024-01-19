@@ -1,10 +1,11 @@
 package _2023;
 
 import util.Constants;
+import util.Node;
 import util.Util;
-import lombok.AllArgsConstructor;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 
 import static util.Constants.DIRMAP;
@@ -27,22 +28,21 @@ public class Day17 {
             }
         }
 
-        PriorityQueue<Node> queue = new PriorityQueue<>();
-        queue.add(new Node(0, 0, 0, 0, ' ', null));
-        Node endNode = null;
+        Node start = new Node(0, 0), end = null;
+        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparing(Node::getWeight));
+        queue.add(start);
 
         while (!queue.isEmpty()) {
             var current = queue.poll();
 
-            // Reach destination
             if (current.x == cols - 1 && current.y == rows - 1) {
-                if (endNode == null || current.heatCost < endNode.heatCost) {
-                    endNode = current;
+                if (end == null || current.weight < end.weight) {
+                    end = current;
                 }
                 continue;
             }
 
-            var directionIndex = DIRMAP.getOrDefault(current.lastDirection, -1);
+            var directionIndex = DIRMAP.getOrDefault(current.direction, -1);
             for (int i = 0; i < Constants.DIRECTIONS.length; i++) {
                 // cannot backward
                 if ((directionIndex == 0 && i == 1) || (directionIndex == 1 && i == 0)
@@ -50,7 +50,7 @@ public class Day17 {
 
                 var newX = current.x;
                 var newY = current.y;
-                var newHeatCost = current.heatCost;
+                var newHeatCost = current.weight;
                 var outOfBounds = false;
                 var changeDirection = i != directionIndex;
                 var steps = changeDirection ? 0 : current.steps;
@@ -75,43 +75,9 @@ public class Day17 {
             }
         }
 
-        printPath(endNode, rows, cols);
-        System.out.println(endNode.heatCost);
+        Util.printPath(start, end, rows, cols);
+
+        System.out.println(end.weight);
     }
 
-    private static void printPath(Node endNode, int rows, int cols) {
-        char[][] path = new char[rows][cols];
-        for (char[] row : path) {
-            Arrays.fill(row, '.');
-        }
-
-        Node current = endNode;
-        while (current != null) {
-            path[current.y][current.x] = current.lastDirection;
-            current = current.previous;
-        }
-        path[0][0] = 'S';
-        path[rows - 1][cols - 1] = 'G';
-
-        for (char[] row : path) {
-            for (char c : row) {
-                System.out.print(c + " ");
-            }
-            System.out.println();
-        }
-    }
-
-    @AllArgsConstructor
-    static class Node implements Comparable<Node> {
-        int x, y;
-        int heatCost;
-        int steps;
-        char lastDirection;
-        Node previous;
-
-        @Override
-        public int compareTo(Node other) {
-            return Integer.compare(this.heatCost, other.heatCost);
-        }
-    }
 }
