@@ -41,4 +41,15 @@ public class Range {
         }
     }
 
+    /**
+     * We assume that we already checked 2 ranges are overlap. Otherwise, this returns wrong result
+     */
+    public Range merge(Range other) {
+        return new Range(Math.min(this.min, other.min), Math.max(this.max, other.max));
+    }
+
+    public long length() {
+        return max - min + 1;
+    }
+
 }

@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 
@@ -115,6 +116,28 @@ public class Util {
             }
             System.out.println();
         }
+    }
+
+    public List<Range> mergeRanges(List<Range> ranges) {
+        List<Range> sortedRanges = new ArrayList<>(ranges);
+        sortedRanges.sort(Comparator.comparing(Range::getMin));
+
+        List<Range> mergedRanges = new ArrayList<>();
+        var last = sortedRanges.get(0);
+
+        for (int i = 1; i < sortedRanges.size(); i++) {
+            var current = sortedRanges.get(i);
+            if (last.overlaps(current)) {
+                last = last.merge(current);
+            } else {
+                mergedRanges.add(last);
+                last = current;
+            }
+        }
+
+        mergedRanges.add(last);
+
+        return mergedRanges;
     }
 
 }

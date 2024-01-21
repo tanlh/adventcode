@@ -40,7 +40,7 @@ public class Day19 {
 
         AtomicLong part2 = new AtomicLong(0L);
         acceptedPathRanges.forEach(ranges ->
-            part2.addAndGet(ranges.stream().map(r -> r.max - r.min + 1).reduce(1L, (c1, c2) -> c1 * c2))
+            part2.addAndGet(ranges.stream().map(Range::length).reduce(1L, (c1, c2) -> c1 * c2))
         );
 
         System.err.println(acceptedPathRanges);
