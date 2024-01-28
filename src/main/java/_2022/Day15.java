@@ -43,7 +43,7 @@ public class Day15 {
         var count = getExclusionRanges(sensors, targetRow).stream()
             .mapToLong(range -> range.length() - targetRowBeacons.stream().filter(b -> range.min <= b && b <= range.max).count())
             .sum();
-        System.out.println("Part 1: " + count);
+        System.err.println("Part 1: " + count);
 
         /**
          * This loop will scan the exclusion ranges (x) on every horizontal line (y)
