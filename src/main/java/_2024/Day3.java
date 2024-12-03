@@ -3,6 +3,8 @@ package _2024;
 import util.Util;
 
 import java.util.TreeMap;
+import java.util.function.Predicate;
+import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 public class Day3 {
@@ -13,47 +15,26 @@ public class Day3 {
 
     public static void main(String[] args) {
         var input = String.join("", Util.readFileToLines());
-        System.err.println("Part 1: " + calSum1(input));
-        System.err.println("Part 2: " + calSum2(input));
-    }
 
-    private static int calSum1(String input) {
-        var matcher = MUL_PATTERN.matcher(input);
-        var sum = 0;
-        while (matcher.find()) {
-            int x = Integer.parseInt(matcher.group(1));
-            int y = Integer.parseInt(matcher.group(2));
-            sum += x * y;
-        }
-        return sum;
-    }
+        // 189527826
+        var part1 = calSum(input, m -> true);
+        System.err.println("Part 1: " + part1);
 
-    public static int calSum2(String input) {
-        TreeMap<Integer, Boolean> instructionMap = new TreeMap<>();
-        var doMatcher = DO_PATTERN.matcher(input);
-        while (doMatcher.find()) {
-            instructionMap.put(doMatcher.start(), true);
-        }
-        var dontMatcher = DONT_PATTERN.matcher(input);
-        while (dontMatcher.find()) {
-            instructionMap.put(dontMatcher.start(), false);
-        }
-        // Set do at start
+        var instructionMap = new TreeMap<Integer, Boolean>();
+        DO_PATTERN.matcher(input).results().forEach(match -> instructionMap.put(match.start(), true));
+        DONT_PATTERN.matcher(input).results().forEach(match -> instructionMap.put(match.start(), false));
         instructionMap.putIfAbsent(-1, true);
 
-        var sum = 0;
-        var mulMatcher = MUL_PATTERN.matcher(input);
-        while (mulMatcher.find()) {
-            var mulIndex = mulMatcher.start();
-            var enabled = instructionMap.floorEntry(mulIndex).getValue();
-            if (enabled) {
-                int x = Integer.parseInt(mulMatcher.group(1));
-                int y = Integer.parseInt(mulMatcher.group(2));
-                sum += x * y;
-            }
-        }
+        var part2 = calSum(input, m -> instructionMap.floorEntry(m.start()).getValue());
+        System.err.println("Part 2: " + part2);
+    }
 
-        return sum;
+    private static int calSum(String input, Predicate<MatchResult> checker) {
+        return MUL_PATTERN.matcher(input)
+            .results()
+            .filter(checker)
+            .mapToInt(match -> Integer.parseInt(match.group(1)) * Integer.parseInt(match.group(2)))
+            .sum();
     }
 
 }
