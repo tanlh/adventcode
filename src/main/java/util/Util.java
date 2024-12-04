@@ -140,4 +140,8 @@ public class Util {
         return mergedRanges;
     }
 
+    public boolean isInGrid(char[][] grid, int row, int col) {
+        return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
+    }
+
 }

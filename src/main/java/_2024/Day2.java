@@ -2,6 +2,7 @@ package _2024;
 
 import util.Util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -22,12 +23,11 @@ public class Day2 {
     private static boolean isSafe2(List<Integer> levels) {
         return isSafe1(levels) ||
             IntStream.range(0, levels.size())
-                .anyMatch(i -> isSafe1(
-                    IntStream.range(0, levels.size())
-                        .filter(j -> j != i)
-                        .mapToObj(levels::get)
-                        .toList()
-                ));
+                .anyMatch(i -> {
+                    var removed = new ArrayList<>(levels);
+                    removed.remove(i);
+                    return isSafe1(removed);
+                });
     }
 
     private static boolean isSafe1(List<Integer> levels) {
