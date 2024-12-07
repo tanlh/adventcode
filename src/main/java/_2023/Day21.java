@@ -111,7 +111,7 @@ public class Day21 {
             var curr = queue.poll();
             var newStep = curr.steps + 1;
 
-            for (int[] dir : DIRECTIONS) {
+            for (var dir : DIRECTIONS) {
                 var newX = curr.x + dir[0];
                 var newY = curr.y + dir[1];
 

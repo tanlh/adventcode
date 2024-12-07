@@ -30,9 +30,9 @@ public class Day1 {
         System.err.println("Part 1: " + part1);
 
         // Part 2
-        var map = right.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        var rightFrequency = right.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         var part2 = left.stream()
-            .mapToLong(val -> val * map.getOrDefault(val, 0L))
+            .mapToLong(val -> val * rightFrequency.getOrDefault(val, 0L))
             .sum();
         System.err.println("Part 2: " + part2);
     }

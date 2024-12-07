@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
+import static util.Constants.DIRECTIONS;
 import static util.Constants.DIRMAP;
 
 public class Day17 {
@@ -42,7 +43,7 @@ public class Day17 {
             }
 
             var dirIndex = DIRMAP.getOrDefault(current.direction, -1);
-            for (int i = 0; i < Constants.DIRECTIONS.length; i++) {
+            for (int i = 0; i < DIRECTIONS.length; i++) {
                 // cannot backward: 2 (U) * 3 (D) = 6, 0 (L) + 1 (R) = 1
                 if (dirIndex * i == 6 || dirIndex + i == 1) continue;
 

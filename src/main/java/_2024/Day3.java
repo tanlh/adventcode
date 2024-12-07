@@ -20,11 +20,7 @@ public class Day3 {
         var part1 = calSum(input, m -> true);
         System.err.println("Part 1: " + part1);
 
-        var instructionMap = new TreeMap<Integer, Boolean>();
-        DO_PATTERN.matcher(input).results().forEach(match -> instructionMap.put(match.start(), true));
-        DONT_PATTERN.matcher(input).results().forEach(match -> instructionMap.put(match.start(), false));
-        instructionMap.putIfAbsent(-1, true);
-
+        var instructionMap = createInstructionMap(input);
         var part2 = calSum(input, m -> instructionMap.floorEntry(m.start()).getValue());
         System.err.println("Part 2: " + part2);
     }
@@ -35,6 +31,14 @@ public class Day3 {
             .filter(checker)
             .mapToInt(match -> Integer.parseInt(match.group(1)) * Integer.parseInt(match.group(2)))
             .sum();
+    }
+
+    private static TreeMap<Integer, Boolean> createInstructionMap(String input) {
+        var instructionMap = new TreeMap<Integer, Boolean>();
+        DO_PATTERN.matcher(input).results().forEach(match -> instructionMap.put(match.start(), true));
+        DONT_PATTERN.matcher(input).results().forEach(match -> instructionMap.put(match.start(), false));
+        instructionMap.putIfAbsent(-1, true);
+        return instructionMap;
     }
 
 }

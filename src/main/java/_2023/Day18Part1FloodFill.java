@@ -58,7 +58,7 @@ public class Day18Part1FloodFill {
         while (!queue.isEmpty()) {
             var point = queue.poll();
 
-            for (int[] direction : DIRECTIONS) {
+            for (var direction : DIRECTIONS) {
                 var newX = point.x + direction[0];
                 var newY = point.y + direction[1];
                 var newPoint = new Point(newX, newY);
