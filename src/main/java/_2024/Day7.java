@@ -4,6 +4,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import util.Util;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,5 +56,32 @@ public class Day7 {
         memo.get(index).put(current, result);
 
         return result;
+    }
+
+    private static List<List<BigInteger>> generateCombinations(List<BigInteger> numbers) {
+        List<List<BigInteger>> result = new ArrayList<>();
+        result.add(new ArrayList<>(numbers)); // Add original list
+
+        for (int concatenations = 1; concatenations < numbers.size(); concatenations++) {
+            generateCombinationsHelper(numbers, new ArrayList<>(), 0, concatenations, result);
+        }
+
+        return result;
+    }
+
+    private static void generateCombinationsHelper(List<BigInteger> numbers, List<BigInteger> current, int start, int concatenationsLeft, List<List<BigInteger>> result) {
+        if (concatenationsLeft == 0) {
+            current.addAll(numbers.subList(start, numbers.size()));
+            result.add(new ArrayList<>(current));
+            return;
+        }
+
+        for (int i = start; i < numbers.size() - 1; i++) {
+            List<BigInteger> newCurrent = new ArrayList<>(current);
+            BigInteger concatenated = new BigInteger(numbers.get(i).toString() + numbers.get(i + 1).toString());
+            newCurrent.add(concatenated);
+            newCurrent.addAll(numbers.subList(start, i));
+            generateCombinationsHelper(numbers, newCurrent, i + 2, concatenationsLeft - 1, result);
+        }
     }
 }
