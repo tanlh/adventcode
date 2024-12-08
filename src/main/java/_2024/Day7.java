@@ -9,41 +9,39 @@ import java.util.Map;
 
 public class Day7 {
 
+    record State(int index, BigInteger current) {
+    }
+
     public static void main(String[] args) {
         var result = Util.readFileToLines().stream()
             .map(line -> {
                 var parts = line.split(": ");
                 var target = new BigInteger(parts[0]);
                 var numbers = Util.parseLine(parts[1], "\\s+", BigInteger::new);
-                Map<Integer, Map<BigInteger, Boolean>> memo = new HashMap<>();
+                Map<State, Boolean> memo = new HashMap<>();
                 return isValidEq(target, numbers, numbers.getFirst(), 1, memo) ? target : BigInteger.ZERO;
             })
             .reduce(BigInteger.ZERO, BigInteger::add);
         System.err.println("Result: " + result);
     }
 
-    private static boolean isValidEq(BigInteger target, List<BigInteger> numbers, BigInteger current, int index, Map<Integer, Map<BigInteger, Boolean>> memo) {
+    private static boolean isValidEq(BigInteger target, List<BigInteger> numbers, BigInteger current, int index, Map<State, Boolean> memo) {
         if (index == numbers.size()) {
             return current.equals(target);
         }
 
-        if (memo.getOrDefault(index, Map.of()).containsKey(current)) {
-            return memo.get(index).get(current);
+        var state = new State(index, current);
+        if (memo.containsKey(state)) {
+            return memo.get(state);
         }
 
-        boolean result = false;
+        var next = numbers.get(index);
+        var nextIndex = index + 1;
+        var result = isValidEq(target, numbers, current.add(next), nextIndex, memo) ||
+            isValidEq(target, numbers, current.multiply(next), nextIndex, memo) ||
+            (index < numbers.size() && isValidEq(target, numbers, new BigInteger(current.toString() + next), nextIndex, memo));
 
-        if (isValidEq(target, numbers, current.add(numbers.get(index)), index + 1, memo)) {
-            result = true;
-        } else if (isValidEq(target, numbers, current.multiply(numbers.get(index)), index + 1, memo)) {
-            result = true;
-        } else if (index < numbers.size() && isValidEq(target, numbers, new BigInteger(current + numbers.get(index).toString()), index + 1, memo)) {
-            result = true;
-        }
-
-        memo.putIfAbsent(index, new HashMap<>());
-        memo.get(index).put(current, result);
-
+        memo.put(state, result);
         return result;
     }
 
