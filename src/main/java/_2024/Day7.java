@@ -39,7 +39,7 @@ public class Day7 {
         var nextIndex = index + 1;
         var result = isValidEq(target, numbers, current.add(next), nextIndex, memo) ||
             isValidEq(target, numbers, current.multiply(next), nextIndex, memo) ||
-            (index < numbers.size() && isValidEq(target, numbers, new BigInteger(current.toString() + next), nextIndex, memo));
+            isValidEq(target, numbers, new BigInteger(current.toString() + next), nextIndex, memo); // Part 2
 
         memo.put(state, result);
         return result;
