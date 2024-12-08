@@ -54,23 +54,15 @@ public class Day6 {
     }
 
     private static int countObstruction(Set<IntPoint> path) {
-        var obCount = 0;
-
-        for (var obstruction : path) {
-            if (grid[obstruction.y][obstruction.x] == '#' ||
-                (obstruction.x == start.x && obstruction.y == start.y)) continue;
-
-            grid[obstruction.y][obstruction.x] = '#';
-
-            var newPath = tracePath();
-            if (newPath.isEmpty()) {
-                obCount++;
-            }
-
-            grid[obstruction.y][obstruction.x] = '.';
-        }
-
-        return obCount;
+        return path.stream()
+            .filter(obs -> grid[obs.y][obs.x] != '#' && !obs.equals(start))
+            .mapToInt(obs -> {
+                grid[obs.y][obs.x] = '#';
+                var newPath = tracePath();
+                grid[obs.y][obs.x] = '.';
+                return newPath.isEmpty() ? 1 : 0;
+            })
+            .sum();
     }
 
     private static IntPoint findStart() {
