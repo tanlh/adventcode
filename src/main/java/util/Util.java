@@ -46,7 +46,7 @@ public class Util {
 
     public char[][] readFileToGrid() {
         var lines = readFileToLines();
-        var grid = new char[lines.size()][lines.get(0).length()];
+        var grid = new char[lines.size()][lines.getFirst().length()];
         for (int i = 0; i < lines.size(); i++) {
             grid[i] = lines.get(i).toCharArray();
         }
@@ -56,7 +56,7 @@ public class Util {
 
     public int[][] readFileToGridInt() {
         var lines = readFileToLines();
-        var cols = lines.get(0).length();
+        var cols = lines.getFirst().length();
         var grid = new int[lines.size()][cols];
         for (int i = 0; i < lines.size(); i++) {
             var line = lines.get(i);
@@ -81,7 +81,7 @@ public class Util {
     }
 
     public long findLCM(List<Integer> numbers) {
-        long lcm = numbers.get(0);
+        long lcm = numbers.getFirst();
         for (int i = 1; i < numbers.size(); i++) {
             lcm = calculateLCM(lcm, numbers.get(i));
         }
@@ -123,7 +123,7 @@ public class Util {
         sortedRanges.sort(Comparator.comparing(Range::getMin));
 
         List<Range> mergedRanges = new ArrayList<>();
-        var last = sortedRanges.get(0);
+        var last = sortedRanges.getFirst();
 
         for (int i = 1; i < sortedRanges.size(); i++) {
             var current = sortedRanges.get(i);
