@@ -3,7 +3,11 @@ package _2024;
 import util.IntPoint;
 import util.Util;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.IntStream;
 
 import static util.Constants.TOP;
 
@@ -66,14 +70,13 @@ public class Day6 {
     }
 
     private static IntPoint findStart() {
-        for (var i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-                if (grid[i][j] == '^') {
-                    return new IntPoint(j, i);
-                }
-            }
-        }
-        throw new NoSuchElementException();
+        return IntStream.range(0, grid.length)
+            .mapToObj(y -> IntStream.range(0, grid[0].length)
+                .filter(x -> grid[y][x] == '^')
+                .mapToObj(j -> new IntPoint(j, y)))
+            .flatMap(Function.identity())
+            .findFirst()
+            .orElseThrow();
     }
 
 }

@@ -11,10 +11,6 @@ import static util.Constants.*;
 
 public class Day4 {
 
-//    private static final int[][] DIRECTIONS = {
-//        {0, -1}, {0, 1}, {-1, 0}, {1, 0},
-//        {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
-//    };
     private static final String XMAS = "XMAS";
     private static final Set<String> CROSS_MAS = Set.of("MAS", "SAM");
     private static char[][] grid;
