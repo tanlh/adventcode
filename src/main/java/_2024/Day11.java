@@ -20,7 +20,7 @@ public class Day11 {
             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         var blinkTimes = 75;
 
-        var totalStones = (Long) Stream.iterate(stones, counts -> counts.entrySet()
+        var totalStones = Stream.iterate(stones, counts -> counts.entrySet()
                 .stream()
                 .flatMap(e -> blink(e.getKey()).stream().map(n -> Map.entry(n, e.getValue())))
                 .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(Map.Entry::getValue))))
