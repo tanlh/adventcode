@@ -144,4 +144,8 @@ public class Util {
         return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
     }
 
+    public boolean isInGrid(int[][] grid, int row, int col) {
+        return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
+    }
+
 }
