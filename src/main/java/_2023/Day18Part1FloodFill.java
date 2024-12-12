@@ -1,6 +1,6 @@
 package _2023;
 
-import util.Point;
+import util.LongPoint;
 import util.Util;
 
 import java.util.*;
@@ -18,8 +18,8 @@ public class Day18Part1FloodFill {
         System.out.println("Result: " + result);
     }
 
-    private static List<Point> buildBoundary(List<String> digPlan) {
-        List<Point> points = new ArrayList<>();
+    private static List<LongPoint> buildBoundary(List<String> digPlan) {
+        List<LongPoint> points = new ArrayList<>();
         int x = 0, y = 0;
 
         for (var step : digPlan) {
@@ -30,7 +30,7 @@ public class Day18Part1FloodFill {
             for (int i = 0; i < distance; i++) {
                 x += direction == 'L' ? -1 : direction == 'R' ? 1 : 0;
                 y += direction == 'U' ? -1 : direction == 'D' ? 1 : 0;
-                points.add(new Point(x, y));
+                points.add(new LongPoint(x, y));
 
                 minX = Math.min(x, minX);
                 maxX = Math.max(x, maxX);
@@ -48,10 +48,10 @@ public class Day18Part1FloodFill {
         return points;
     }
 
-    private static long calculateArea(List<Point> points) {
-        var startPoint = new Point(minX, minY);
-        Set<Point> outsidePoints = new HashSet<>();
-        Queue<Point> queue = new LinkedList<>();
+    private static long calculateArea(List<LongPoint> points) {
+        var startPoint = new LongPoint(minX, minY);
+        Set<LongPoint> outsidePoints = new HashSet<>();
+        Queue<LongPoint> queue = new LinkedList<>();
         queue.add(startPoint);
         outsidePoints.add(startPoint);
 
@@ -61,7 +61,7 @@ public class Day18Part1FloodFill {
             for (var direction : DIRECTIONS) {
                 var newX = point.x + direction[0];
                 var newY = point.y + direction[1];
-                var newPoint = new Point(newX, newY);
+                var newPoint = new LongPoint(newX, newY);
 
                 if (newX >= minX && newX <= maxX && newY >= minY && newY <= maxY
                     && !points.contains(newPoint) && outsidePoints.add(newPoint)) {

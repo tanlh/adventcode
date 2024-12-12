@@ -1,7 +1,7 @@
 package _2022;
 
 import lombok.AllArgsConstructor;
-import util.Point;
+import util.LongPoint;
 import util.Util;
 
 import java.util.*;
@@ -18,12 +18,12 @@ public class Day9 {
     }
 
     public static void main(String[] args) {
-        Set<Point> visited = new HashSet<>();
-        visited.add(new Point(0, 0));
+        Set<LongPoint> visited = new HashSet<>();
+        visited.add(new LongPoint(0, 0));
 
-        List<Point> rope = new ArrayList<>();
+        List<LongPoint> rope = new ArrayList<>();
         for (int i = 0; i <= TAIL_NUM; i++) {
-            rope.add(new Point(0, 0));
+            rope.add(new LongPoint(0, 0));
         }
 
         for (var move : Util.readFileToLines()) {
@@ -45,7 +45,7 @@ public class Day9 {
                     }
 
                     if (j == TAIL_NUM) {
-                        visited.add(new Point(knot2.x, knot2.y));
+                        visited.add(new LongPoint(knot2.x, knot2.y));
                     }
                 }
             }

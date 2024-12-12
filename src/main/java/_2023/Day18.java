@@ -1,6 +1,6 @@
 package _2023;
 
-import util.Point;
+import util.LongPoint;
 import util.Util;
 import lombok.Data;
 
@@ -62,16 +62,16 @@ public class Day18 {
             .collect(Collectors.toList());
     }
 
-    private static List<Point> parseVertices(List<Instruction> instructions) {
+    private static List<LongPoint> parseVertices(List<Instruction> instructions) {
         int x = 0, y = 0;
-        List<Point> vertices = new ArrayList<>();
+        List<LongPoint> vertices = new ArrayList<>();
 
         for (var instr : instructions) {
             var dx = instr.direction == 'L' ? -1 : instr.direction == 'R' ? 1 : 0;
             var dy = instr.direction == 'U' ? -1 : instr.direction == 'D' ? 1 : 0;
             x += dx * instr.distance;
             y += dy * instr.distance;
-            vertices.add(new Point(x, y));
+            vertices.add(new LongPoint(x, y));
         }
 
         return vertices;

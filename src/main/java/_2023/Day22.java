@@ -2,7 +2,7 @@ package _2023;
 
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import util.Point;
+import util.LongPoint;
 import util.Util;
 
 import java.util.*;
@@ -34,14 +34,14 @@ public class Day22 {
     private static void simulateFalling(List<Brick> bricks) {
         bricks.sort(Comparator.comparingInt(b -> b.startZ));
 
-        Map<Point, Integer> highestZMap = new HashMap<>();
+        Map<LongPoint, Integer> highestZMap = new HashMap<>();
         for (var brick : bricks) {
             var highestZ = 0;
-            List<Point> coveredPositions = new ArrayList<>();
+            List<LongPoint> coveredPositions = new ArrayList<>();
 
             for (int x = brick.startX; x <= brick.endX; x++) {
                 for (int y = brick.startY; y <= brick.endY; y++) {
-                    Point position = new Point(x, y);
+                    LongPoint position = new LongPoint(x, y);
                     coveredPositions.add(position);
                     highestZ = Math.max(highestZ, highestZMap.computeIfAbsent(position, p -> 0));
                 }

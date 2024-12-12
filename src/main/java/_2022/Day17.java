@@ -3,7 +3,7 @@ package _2022;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.commons.lang3.tuple.Pair;
-import util.Point;
+import util.LongPoint;
 import util.Util;
 
 import java.util.*;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class Day17 {
 
     static int CAVE_WIDTH = 7;
-    static List<Point> restRocks = new ArrayList<>();
+    static List<LongPoint> restRocks = new ArrayList<>();
     static String jetPattern;
     static Map<RockState, Pair<Long, Long>> rockStateMap = new HashMap<>();
 
@@ -78,40 +78,40 @@ public class Day17 {
         return totalHeight;
     }
 
-    private List<Point> generateRock(long rockIndex, long y) {
+    private List<LongPoint> generateRock(long rockIndex, long y) {
         return switch ((int) (rockIndex % 5)) {
             // -
-            case 0 -> List.of(new Point(3, y), new Point(4, y), new Point(5, y), new Point(6, y));
+            case 0 -> List.of(new LongPoint(3, y), new LongPoint(4, y), new LongPoint(5, y), new LongPoint(6, y));
             // +
             case 1 ->
-                List.of(new Point(3, y + 1), new Point(4, y + 1), new Point(5, y + 1), new Point(4, y), new Point(4, y + 2));
+                List.of(new LongPoint(3, y + 1), new LongPoint(4, y + 1), new LongPoint(5, y + 1), new LongPoint(4, y), new LongPoint(4, y + 2));
             // _|
             case 2 ->
-                List.of(new Point(3, y), new Point(4, y), new Point(5, y), new Point(5, y + 1), new Point(5, y + 2));
+                List.of(new LongPoint(3, y), new LongPoint(4, y), new LongPoint(5, y), new LongPoint(5, y + 1), new LongPoint(5, y + 2));
             // |
-            case 3 -> List.of(new Point(3, y), new Point(3, y + 1), new Point(3, y + 2), new Point(3, y + 3));
+            case 3 -> List.of(new LongPoint(3, y), new LongPoint(3, y + 1), new LongPoint(3, y + 2), new LongPoint(3, y + 3));
             // square
-            default -> List.of(new Point(3, y), new Point(3, y + 1), new Point(4, y), new Point(4, y + 1));
+            default -> List.of(new LongPoint(3, y), new LongPoint(3, y + 1), new LongPoint(4, y), new LongPoint(4, y + 1));
         };
     }
 
-    private boolean canMoveRight(List<Point> rockShape) {
-        return rockShape.stream().noneMatch(p -> p.x == CAVE_WIDTH || restRocks.contains(new Point(p.x + 1, p.y)));
+    private boolean canMoveRight(List<LongPoint> rockShape) {
+        return rockShape.stream().noneMatch(p -> p.x == CAVE_WIDTH || restRocks.contains(new LongPoint(p.x + 1, p.y)));
     }
 
-    private void moveRight(List<Point> rockShape) {
+    private void moveRight(List<LongPoint> rockShape) {
         rockShape.forEach(p -> p.x++);
     }
 
-    private boolean canMoveLeft(List<Point> rockShape) {
-        return rockShape.stream().noneMatch(p -> p.x == 1 || restRocks.contains(new Point(p.x - 1, p.y)));
+    private boolean canMoveLeft(List<LongPoint> rockShape) {
+        return rockShape.stream().noneMatch(p -> p.x == 1 || restRocks.contains(new LongPoint(p.x - 1, p.y)));
     }
 
-    private void moveLeft(List<Point> rockShape) {
+    private void moveLeft(List<LongPoint> rockShape) {
         rockShape.forEach(p -> p.x--);
     }
 
-    private boolean isRest(List<Point> rockShape) {
-        return rockShape.stream().anyMatch(p -> p.y == 1 || restRocks.contains(new Point(p.x, p.y - 1)));
+    private boolean isRest(List<LongPoint> rockShape) {
+        return rockShape.stream().anyMatch(p -> p.y == 1 || restRocks.contains(new LongPoint(p.x, p.y - 1)));
     }
 }

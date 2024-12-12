@@ -1,5 +1,6 @@
 package _2024;
 
+import util.Point;
 import util.Util;
 
 import java.util.ArrayList;
@@ -10,9 +11,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Day8 {
-
-    record Antenna(int x, int y) {
-    }
 
     private static char[][] grid;
 
@@ -29,29 +27,29 @@ public class Day8 {
         System.err.println("Part 2: " + antinodes.size());
     }
 
-    private static Map<Character, List<Antenna>> findAntennas() {
+    private static Map<Character, List<Point>> findAntennas() {
         return IntStream.range(0, grid.length).boxed()
             .flatMap(y -> IntStream.range(0, grid[y].length)
                 .filter(x -> grid[y][x] != '.')
-                .mapToObj(x -> Map.entry(grid[y][x], new Antenna(x, y))))
+                .mapToObj(x -> Map.entry(grid[y][x], new Point(x, y))))
             .collect(Collectors.groupingBy(
                 Map.Entry::getKey,
                 Collectors.mapping(Map.Entry::getValue, Collectors.toList())
             ));
     }
 
-    private static Set<String> findAntinodes(Map<Character, List<Antenna>> antennasByFrequency) {
+    private static Set<String> findAntinodes(Map<Character, List<Point>> antennasByFrequency) {
         return antennasByFrequency.values().stream()
             .flatMap(antennas ->
                 IntStream.range(0, antennas.size()).boxed()
                     .flatMap(i -> IntStream.range(i + 1, antennas.size())
-                        .mapToObj(j -> new Antenna[]{antennas.get(i), antennas.get(j)}))
+                        .mapToObj(j -> new Point[]{antennas.get(i), antennas.get(j)}))
             )
             .flatMap(pair -> findAntinodes(pair[0], pair[1]).stream())
             .collect(Collectors.toSet());
     }
 
-    private static List<String> findAntinodes(Antenna a1, Antenna a2) {
+    private static List<String> findAntinodes(Point a1, Point a2) {
         int minX = Math.min(a1.x, a2.x), maxX = Math.max(a1.x, a2.x), minY = Math.min(a1.y, a2.y), maxY = Math.max(a1.y, a2.y);
         int dx = a2.x - a1.x, dy = a2.y - a1.y;
 

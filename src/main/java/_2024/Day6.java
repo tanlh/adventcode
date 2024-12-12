@@ -1,6 +1,6 @@
 package _2024;
 
-import util.IntPoint;
+import util.Point;
 import util.Util;
 
 import java.util.HashSet;
@@ -14,7 +14,7 @@ import static util.Constants.TOP;
 public class Day6 {
 
     private static char[][] grid;
-    private static IntPoint start;
+    private static Point start;
 
     public static void main(String[] args) {
         grid = Util.readFileToGrid();
@@ -27,10 +27,10 @@ public class Day6 {
         System.err.println("Part 2: " + obstructions);
     }
 
-    private static Set<IntPoint> tracePath() {
-        Set<IntPoint> path = new LinkedHashSet<>();
+    private static Set<Point> tracePath() {
+        Set<Point> path = new LinkedHashSet<>();
         Set<String> visited = new HashSet<>();
-        var current = new IntPoint(start.x, start.y);
+        var current = new Point(start.x, start.y);
         var direction = TOP;
 
         while (Util.isInGrid(grid, current.y, current.x)) {
@@ -40,7 +40,7 @@ public class Day6 {
                 return Set.of();
             }
 
-            path.add(new IntPoint(current.x, current.y));
+            path.add(new Point(current.x, current.y));
 
             var newX = current.x + direction[0];
             var newY = current.y + direction[1];
@@ -57,7 +57,7 @@ public class Day6 {
         return path;
     }
 
-    private static int countObstruction(Set<IntPoint> path) {
+    private static int countObstruction(Set<Point> path) {
         return path.stream()
             .filter(obs -> grid[obs.y][obs.x] != '#' && !obs.equals(start))
             .mapToInt(obs -> {
@@ -69,11 +69,11 @@ public class Day6 {
             .sum();
     }
 
-    private static IntPoint findStart() {
+    private static Point findStart() {
         return IntStream.range(0, grid.length)
             .mapToObj(y -> IntStream.range(0, grid[0].length)
                 .filter(x -> grid[y][x] == '^')
-                .mapToObj(j -> new IntPoint(j, y)))
+                .mapToObj(j -> new Point(j, y)))
             .flatMap(Function.identity())
             .findFirst()
             .orElseThrow();
