@@ -1,6 +1,5 @@
 package _2024;
 
-import util.Point;
 import util.Util;
 
 import java.util.*;
@@ -18,35 +17,34 @@ public class Day12 {
         visited = new boolean[grid.length][grid[0].length];
 
         var results = IntStream.range(0, grid.length * grid[0].length)
-            .mapToObj(i -> new Point(i % grid[0].length, i / grid[0].length))
-            .filter(p -> !visited[p.y][p.x])
-            .map(Day12::findRegion)
+            .filter(i -> !visited[i / grid[0].length][i % grid[0].length])
+            .mapToObj(Day12::findRegion)
             .reduce(new int[2], (a, b) -> { a[0] += b[0]; a[1] += b[1]; return a; });
-        System.out.println("Part 1: " + results[0]);
-        System.out.println("Part 2: " + results[1]);
+        System.out.printf("Part 1: %d%nPart 2: %d%n", results[0], results[1]);
     }
 
-    private static int[] findRegion(Point start) {
-        var plantType = grid[start.y][start.x];
-        var queue = new ArrayDeque<>(List.of(start));
+    private static int[] findRegion(int start) {
+        int x = start % grid[0].length, y = start / grid[0].length;
+        var plantType = grid[y][x];
+        Queue<int[]> queue = new LinkedList<>(List.of(new int[]{x, y}));
         Map<Character, Map<Integer, Set<Integer>>> sideMap = new HashMap<>();
-        visited[start.y][start.x] = true;
+        visited[y][x] = true;
         int area = 0, perimeter = 0;
 
         while (!queue.isEmpty()) {
             var current = queue.poll();
             area++;
             for (var dir : DIRCHARMAP.entrySet()) {
-                int newX = current.x + dir.getValue()[0], newY = current.y + dir.getValue()[1];
+                int newX = current[0] + dir.getValue()[0], newY = current[1] + dir.getValue()[1];
                 if (!Util.isInGrid(grid, newY, newX) || grid[newY][newX] != plantType) {
                     perimeter++;
                     var side = dir.getKey();
                     var isHorizontal = side == 'T' || side == 'B';
                     sideMap.computeIfAbsent(side, _ -> new HashMap<>())
-                        .computeIfAbsent(isHorizontal ? current.y : current.x, _ -> new TreeSet<>())
-                        .add(isHorizontal ? current.x : current.y);
+                        .computeIfAbsent(isHorizontal ? current[1] : current[0], _ -> new TreeSet<>())
+                        .add(isHorizontal ? current[0] : current[1]);
                 } else if (!visited[newY][newX]) {
-                    queue.offer(new Point(newX, newY));
+                    queue.offer(new int[]{newX, newY});
                     visited[newY][newX] = true;
                 }
             }
