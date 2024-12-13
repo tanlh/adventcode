@@ -22,5 +22,6 @@ public interface Constants {
     int[][] FULL_DIRECTIONS = {LEFT, RIGHT, TOP, BOTTOM, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT};
 
     BiMap<Character, Integer> DIRMAP = HashBiMap.create(Map.of('<', 0, '>', 1, '^', 2, 'v', 3));
+    Map<Character, int[]> DIRCHARMAP = Map.of('L', LEFT, 'R', RIGHT, 'B', BOTTOM, 'T', TOP);
 
 }
