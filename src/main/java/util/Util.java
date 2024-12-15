@@ -118,6 +118,15 @@ public class Util {
         }
     }
 
+    public void printGrid(List<Point> points, int rows, int cols) {
+        char[][] grid = new char[rows][cols];
+        Arrays.stream(grid).forEach(row -> Arrays.fill(row, '.'));
+        points.forEach(p -> grid[p.y][p.x] = '#');
+        Arrays.stream(grid)
+            .map(String::new)
+            .forEach(System.out::println);
+    }
+
     public List<Range> mergeRanges(List<Range> ranges) {
         List<Range> sortedRanges = new ArrayList<>(ranges);
         sortedRanges.sort(Comparator.comparing(Range::getMin));
