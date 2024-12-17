@@ -19,7 +19,11 @@ public class Day12 {
         var results = IntStream.range(0, grid.length * grid[0].length)
             .filter(i -> !visited[i / grid[0].length][i % grid[0].length])
             .mapToObj(Day12::findRegion)
-            .reduce(new int[2], (a, b) -> { a[0] += b[0]; a[1] += b[1]; return a; });
+            .reduce(new int[2], (a, b) -> {
+                a[0] += b[0];
+                a[1] += b[1];
+                return a;
+            });
         System.out.printf("Part 1: %d%nPart 2: %d%n", results[0], results[1]);
     }
 
@@ -52,9 +56,9 @@ public class Day12 {
 
         var sides = sideMap.values().stream()
             .flatMap(map -> map.values().stream().map(ArrayList::new))
-            .mapToInt(cd -> IntStream.range(1, cd.size()).map(i -> cd.get(i) > cd.get(i-1) + 1 ? 1 : 0).sum() + 1)
+            .mapToInt(cd -> IntStream.range(1, cd.size()).map(i -> cd.get(i) > cd.get(i - 1) + 1 ? 1 : 0).sum() + 1)
             .sum();
-        return new int[] { area * perimeter, area * sides };
+        return new int[]{area * perimeter, area * sides};
     }
 
 }

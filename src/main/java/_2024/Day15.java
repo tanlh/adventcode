@@ -3,64 +3,129 @@ package _2024;
 import util.Point;
 import util.Util;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static util.Constants.DIRMOVEMAP;
 
 public class Day15 {
 
-    private static char[][] grid;
+    enum Tile {EMPTY, WALL, BOX_LEFT, BOX_RIGHT, ROBOT}
+
+    private static final Map<Point, Tile> grid = new HashMap<>();
     private static Point robot;
+    private static int height, width;
 
     public static void main(String[] args) {
         var input = Util.readFileToBlocks();
         var moves = String.join("", input.get(1));
-        grid = input.getFirst().stream().map(String::toCharArray).toArray(char[][]::new);
-        robot = findRobotStart(grid);
 
-        moves.chars().forEach(move -> moveRobot((char) move));
+        // Part 1
+        parseGrid(input.getFirst(), 1);
+        moves.chars().forEach(Day15::moveRobot1);
         System.err.println("Part 1: " + calculateGPSSum());
+
+        // Part 2
+        parseGrid(input.getFirst(), 2);
+        moves.chars().forEach(Day15::moveRobot2);
+        System.err.println("Part 2: " + calculateGPSSum());
     }
 
-    private static Point findRobotStart(char[][] grid) {
-        return IntStream.range(0, grid.length).boxed()
-            .flatMap(i -> IntStream.range(0, grid[0].length)
-                .filter(j -> grid[i][j] == '@')
-                .mapToObj(j -> new Point(j, i)))
-            .findFirst().orElseThrow();
+    private static void parseGrid(List<String> gridLines, int part) {
+        grid.clear();
+        height = gridLines.size();
+        width = gridLines.getFirst().length() * part;
+        IntStream.range(0, height).boxed().flatMap(y -> IntStream.range(0, width / part).boxed()
+            .flatMap(x -> IntStream.range(0, part).mapToObj(i -> {
+                var p = new Point(x * part + i, y);
+                return Map.entry(p, switch (gridLines.get(y).charAt(x)) {
+                    case '#' -> Tile.WALL;
+                    case 'O' -> i == 0 ? Tile.BOX_LEFT : Tile.BOX_RIGHT;
+                    case '@' -> {
+                        if (i == 0) robot = p;
+                        yield i == 0 ? Tile.ROBOT : Tile.EMPTY;
+                    }
+                    default -> Tile.EMPTY;
+                });
+            }))).forEach(entry -> grid.put(entry.getKey(), entry.getValue()));
     }
 
-    private static void moveRobot(char move) {
-        var dir = DIRMOVEMAP.get(move);
-        int dirX = dir[0], dirY = dir[1];
-        int newX = robot.x + dirX, newY = robot.y + dirY;
+    private static void moveRobot1(int move) {
+        var dir = DIRMOVEMAP.get((char) move);
+        var boxes = new ArrayList<Point>();
+        var current = robot;
 
-        if (canMove(newX, newY, dir)) {
-            var boxCount = (int) IntStream.iterate(0,
-                i -> Util.isInGrid(grid, newY + i * dirY, newX + i * dirX) && grid[newY + i * dirY][newX + i * dirX] == 'O',
-                i -> i + 1
-            ).count() + 1;
+        do {
+            if (grid.get(current = new Point(current, dir)) == Tile.WALL) return;
+            if (grid.get(current) == Tile.BOX_LEFT) boxes.add(current);
+        } while (grid.get(current) == Tile.BOX_LEFT);
 
-            for (var i = boxCount; i > 0; i--) {
-                grid[robot.y + i * dirY][robot.x + i * dirX] = 'O';
+        boxes.reversed().forEach(old -> {
+            grid.put(new Point(old, dir), Tile.BOX_LEFT);
+            grid.put(old, Tile.EMPTY);
+        });
+
+        grid.put(robot, Tile.EMPTY);
+        grid.put(robot = new Point(robot, dir), Tile.ROBOT);
+    }
+
+    private static void moveRobot2(int move) {
+        var dir = DIRMOVEMAP.get((char) move);
+        var next = new Point(robot, dir);
+        if (grid.get(next) == Tile.WALL) return;
+
+        var boxes = new HashSet<Point>();
+        if (dir[0] != 0) {
+            for (var current = next; ; current = new Point(current, dir)) {
+                var tile = grid.get(current);
+                if (tile == Tile.EMPTY) break;
+                if (tile == Tile.WALL) return;
+                boxes.add(current);
+                boxes.add(new Point(current.x + (tile == Tile.BOX_LEFT ? 1 : -1), current.y));
             }
-
-            grid[robot.y][robot.x] = '.';
-            robot.x = newX;
-            robot.y = newY;
-            grid[robot.y][robot.x] = '@';
+        } else {
+            var toCheck = new LinkedList<>(List.of(next));
+            while (!toCheck.isEmpty()) {
+                var current = toCheck.poll();
+                var tile = grid.get(current);
+                if (tile == Tile.WALL) return;
+                if ((tile == Tile.BOX_LEFT || tile == Tile.BOX_RIGHT) && boxes.add(current)) {
+                    var other = new Point(current.x + (tile == Tile.BOX_LEFT ? 1 : -1), current.y);
+                    boxes.add(other);
+                    toCheck.addAll(List.of(new Point(current, dir), new Point(other, dir)));
+                }
+            }
         }
+
+        boxes.stream()
+            .sorted(Comparator.comparingInt((Point p) -> (p.x + p.y) * (dir[0] + dir[1] > 0 ? -1 : 1)))
+            .forEach(box -> {
+                grid.put(new Point(box, dir), grid.get(box));
+                grid.put(box, Tile.EMPTY);
+            });
+        grid.put(robot, Tile.EMPTY);
+        grid.put(robot = next, Tile.ROBOT);
+        printGrid();
     }
 
-    private static boolean canMove(int x, int y, int[] dir) {
-        return Util.isInGrid(grid, y, x) && grid[y][x] != '#' && (grid[y][x] == '.' || canMove(x + dir[0], y + dir[1], dir));
+    private static void printGrid() {
+        IntStream.range(0, height).forEach(y -> System.out.println(IntStream.range(0, width)
+            .mapToObj(x -> switch (grid.get(new Point(x, y))) {
+                case WALL -> "#";
+                case BOX_LEFT -> "[";
+                case BOX_RIGHT -> "]";
+                case ROBOT -> "@";
+                default -> ".";
+            })
+            .collect(Collectors.joining())));
+        System.out.println();
     }
 
-    private static long calculateGPSSum() {
-        return IntStream.range(0, grid.length)
-            .flatMap(y -> IntStream.range(0, grid[y].length)
-                .filter(x -> grid[y][x] == 'O')
-                .map(x -> y * 100 + x))
+    private static int calculateGPSSum() {
+        return grid.entrySet().stream()
+            .filter(entry -> entry.getValue() == Tile.BOX_LEFT)
+            .mapToInt(entry -> entry.getKey().y * 100 + entry.getKey().x)
             .sum();
     }
 
