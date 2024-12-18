@@ -5,7 +5,7 @@ import util.Util;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static util.Constants.DIRCHARMAP;
+import static util.Constants.DIRMOVEMAP;
 
 public class Day12 {
 
@@ -38,12 +38,12 @@ public class Day12 {
         while (!queue.isEmpty()) {
             var current = queue.poll();
             area++;
-            for (var dir : DIRCHARMAP.entrySet()) {
+            for (var dir : DIRMOVEMAP.entrySet()) {
                 int newX = current[0] + dir.getValue()[0], newY = current[1] + dir.getValue()[1];
                 if (!Util.isInGrid(grid, newY, newX) || grid[newY][newX] != plantType) {
                     perimeter++;
                     var side = dir.getKey();
-                    var isHorizontal = side == 'T' || side == 'B';
+                    var isHorizontal = side == '^' || side == 'v';
                     sideMap.computeIfAbsent(side, _ -> new HashMap<>())
                         .computeIfAbsent(isHorizontal ? current[1] : current[0], _ -> new TreeSet<>())
                         .add(isHorizontal ? current[0] : current[1]);
