@@ -157,4 +157,24 @@ public class Util {
         return row >= 0 && row < grid.length && col >= 0 && col < grid[0].length;
     }
 
+    public <T> List<List<T>> generateCombinations(List<List<T>> dataSet) {
+        List<List<T>> allCombinations = new ArrayList<>();
+        generateCombinations(dataSet, new ArrayList<>(), 0, allCombinations);
+        return allCombinations;
+    }
+
+    private <T> void generateCombinations(List<List<T>> dataSet, List<T> currentCombination, int index, List<List<T>> combinations) {
+        if (index == dataSet.size()) {
+            combinations.add(new ArrayList<>(currentCombination));
+            return;
+        }
+
+        List<T> currentCollection = dataSet.get(index);
+        for (var item : currentCollection) {
+            currentCombination.add(item);
+            generateCombinations(dataSet, currentCombination, index + 1, combinations);
+            currentCombination.remove(currentCombination.size() - 1);
+        }
+    }
+
 }

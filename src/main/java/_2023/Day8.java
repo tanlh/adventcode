@@ -1,10 +1,9 @@
 package _2023;
 
-import util.Util;
 import org.apache.commons.lang3.tuple.Pair;
+import util.Util;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Day8 {
 
@@ -24,7 +23,7 @@ public class Day8 {
         // [GNA, FCA, AAA, MXA, VVA, XHA]
         var startNodes = map.keySet().stream()
             .filter(node -> node.endsWith("A"))
-            .collect(Collectors.toList());
+            .toList();
         List<List<Integer>> zStepList = new ArrayList<>();
 
         for (var node : startNodes) {
@@ -47,10 +46,9 @@ public class Day8 {
             zStepList.add(new ArrayList<>(zMap.values()));
         }
 
-        List<List<Integer>> combinations = new ArrayList<>();
-        generateCombinations(zStepList, new ArrayList<>(), 0, combinations);
-
-        var minSteps = combinations.stream()
+        // Actually each start node end with just one Z node. The zMap only contains one key :)))
+        // This method is to handle in case end with many Z node
+        var minSteps = Util.generateCombinations(zStepList).stream()
             .map(Util::findLCM)
             .min(Comparator.naturalOrder())
             .get();
@@ -58,19 +56,4 @@ public class Day8 {
         System.err.println(minSteps);
     }
 
-    // Actually each start node end with just one Z node. The zMap only contains one key :)))
-    // This method is to handle in case end with many Z node
-    private static void generateCombinations(List<List<Integer>> collections, List<Integer> currentCombination, int currentIndex, List<List<Integer>> combinations) {
-        if (currentIndex == collections.size()) {
-            combinations.add(new ArrayList<>(currentCombination));
-            return;
-        }
-
-        List<Integer> currentCollection = collections.get(currentIndex);
-        for (Integer number : currentCollection) {
-            currentCombination.add(number);
-            generateCombinations(collections, currentCombination, currentIndex + 1, combinations);
-            currentCombination.remove(currentCombination.size() - 1);
-        }
-    }
 }
