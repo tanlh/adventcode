@@ -1,6 +1,5 @@
 package _2022;
 
-import util.Node;
 import util.Util;
 
 import java.util.Comparator;
@@ -10,6 +9,8 @@ import static util.Constants.DIRECTIONS;
 import static util.Constants.DIRMAP;
 
 public class Day12 {
+
+    record Node(int x, int y, int steps, char direction, Node previous) {}
 
     static char[][] grid;
     static int rows, cols, endX, endY;
@@ -51,9 +52,8 @@ public class Day12 {
     private static int findShortestPath(int startX, int startY) {
         var visited = new boolean[rows][cols];
 
-        var startNode = new Node(startX, startY);
-        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparing(Node::getSteps));
-        queue.add(startNode);
+        var queue = new PriorityQueue<>(Comparator.comparing(Node::steps));
+        queue.add(new Node(startX, startY, 0, ' ', null));
 
         while (!queue.isEmpty()) {
             var current = queue.poll();
@@ -83,7 +83,7 @@ public class Day12 {
                     continue;
                 }
 
-                queue.add(new Node(newX, newY, current.steps + 1, 0, DIRMAP.inverse().get(i), current));
+                queue.add(new Node(newX, newY, current.steps + 1, DIRMAP.inverse().get(i), current));
             }
         }
 

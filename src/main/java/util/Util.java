@@ -96,28 +96,6 @@ public class Util {
         return b == 0 ? a : calculateGCD(b, a % b);
     }
 
-    public void printPath(Node start, Node end, int rows, int cols) {
-        var path = new char[rows][cols];
-        for (char[] row : path) {
-            Arrays.fill(row, '.');
-        }
-
-        var curr = end;
-        while (curr != null) {
-            path[curr.y][curr.x] = curr.direction;
-            curr = curr.previous;
-        }
-        path[start.y][start.x] = 'S';
-        path[rows - 1][cols - 1] = 'G';
-
-        for (var row : path) {
-            for (var c : row) {
-                System.out.print(c + " ");
-            }
-            System.out.println();
-        }
-    }
-
     public void printGrid(List<Point> points, int rows, int cols) {
         char[][] grid = new char[rows][cols];
         Arrays.stream(grid).forEach(row -> Arrays.fill(row, '.'));

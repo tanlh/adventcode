@@ -9,8 +9,7 @@ import static util.Constants.DIRECTIONS;
 
 public class Day16 {
 
-    record Node(int x, int y, int score, int dir, Node previous) {
-    }
+    record Node(int x, int y, int score, int dir, Node previous) {}
 
     public static void main(String[] args) {
         var grid = Util.readFileToGrid();
@@ -42,7 +41,7 @@ public class Day16 {
         }
 
         var minScore = paths.stream().map(Node::score).min(Integer::compareTo).orElse(0);
-        System.err.println("Min scores: " + minScore);
+        System.err.println("Min score: " + minScore);
 
         var bestTiles = paths.stream()
             .filter(path -> path.score == minScore)

@@ -1,7 +1,6 @@
 package _2023;
 
 import util.Constants;
-import util.Node;
 import util.Util;
 
 import java.util.Arrays;
@@ -12,6 +11,8 @@ import static util.Constants.DIRECTIONS;
 import static util.Constants.DIRMAP;
 
 public class Day17 {
+
+    record Node(int x, int y, int steps, int weight, char direction, Node previous) {}
 
     static final int minStep = 4;
     static final int maxStep = 10;
@@ -29,9 +30,8 @@ public class Day17 {
             }
         }
 
-        var start = new Node(0, 0);
-        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparing(Node::getWeight));
-        queue.add(start);
+        var queue = new PriorityQueue<>(Comparator.comparing(Node::weight));
+        queue.add(new Node(0, 0, 0, 0, ' ', null));
 
         while (!queue.isEmpty()) {
             var current = queue.poll();

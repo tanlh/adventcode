@@ -16,4 +16,13 @@ public class Point {
         this.y = point.y + direction[1];
     }
 
+    /**
+     * Coordinates separated by comma
+     */
+    public Point(String line) {
+        var coordinates = Util.parseLine(line, ",", Integer::parseInt);
+        this.x = coordinates.getFirst();
+        this.y = coordinates.getLast();
+    }
+
 }
