@@ -2,6 +2,7 @@ package _2024;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.Pair;
 import util.Point;
 import util.Util;
@@ -10,115 +11,86 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static java.util.Map.entry;
 import static util.Constants.DIRMOVEMAP;
 
 public class Day21 {
 
-    record Node(Point pos, String moves) {}
-
-    private static final BiMap<Character, Point> NUM_KEYPAD = HashBiMap.create(Map.ofEntries(
-        entry('7', new Point(0, 0)), entry('8', new Point(1, 0)), entry('9', new Point(2, 0)),
-        entry('4', new Point(0, 1)), entry('5', new Point(1, 1)), entry('6', new Point(2, 1)),
-        entry('1', new Point(0, 2)), entry('2', new Point(1, 2)), entry('3', new Point(2, 2)),
-        entry('0', new Point(1, 3)), entry('A', new Point(2, 3))
-    ));
-    private static final Map<String, List<String>> NUM_PATHS = computePaths(NUM_KEYPAD);
-
-    private static final BiMap<Character, Point> DIR_KEYPAD = HashBiMap.create(Map.ofEntries(
-        entry('^', new Point(1, 0)), entry('A', new Point(2, 0)),
-        entry('<', new Point(0, 1)), entry('v', new Point(1, 1)), entry('>', new Point(2, 1))
-    ));
-
-    private static final Map<String, List<String>> DIR_PATHS = computePaths(DIR_KEYPAD);
-    private static final Map<String, Integer> DIR_LENGTHS = DIR_PATHS.entrySet().stream()
-        .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getFirst().length()));
-
+    private static final Map<String, List<String>> NUM_PATHS = preComputePaths(createKeypad("789", "456", "123", " 0A"));
+    private static final Map<String, List<String>> DIR_PATHS = preComputePaths(createKeypad(" ^A", "<v>"));
+    private static final Map<String, Integer> DIR_LENGTHS = Maps.transformEntries(DIR_PATHS, (_, v) -> v.getFirst().length());
     private static final Map<Pair<String, Integer>, Long> memo = new HashMap<>();
 
     public static void main(String[] args) {
-        var total = 0L;
-        for (var code : Util.readFileToLines()) {
-            var paths = findNumKeypadPaths(code);
-            var length = paths.stream()
-                .mapToLong(path -> computeLength(path, 25))
-                .min()
-                .orElseThrow();
-            total += length * Long.parseLong(code.substring(0, 3));
-        }
-        System.err.println(total);
-    }
-
-    private static List<String> findNumKeypadPaths(String code) {
-        return Util.generateCombinations(getMoves(code).stream().map(NUM_PATHS::get).toList())
-            .stream()
-            .map(path -> String.join("", path))
-            .toList();
+        var result = Util.readFileToLines().stream()
+            .mapToLong(code -> Util.generateCombinations(getMoves(code).stream().map(NUM_PATHS::get).toList())
+                .stream()
+                .mapToLong(path -> computeLength(String.join("", path), 25))
+                .min().orElseThrow() * Long.parseLong(code.substring(0, 3)))
+            .sum();
+        System.err.println("Result: " + result);
     }
 
     private static long computeLength(String path, int depth) {
         var key = Pair.of(path, depth);
-        if (memo.containsKey(key)) {
-            return memo.get(key);
-        }
+        if (memo.containsKey(key)) return memo.get(key);
 
-        if (depth == 1) {
-            var length = getMoves(path).stream().mapToLong(DIR_LENGTHS::get).sum();
-            memo.put(key, length);
-            return length;
-        }
-
-        var length = 0L;
-        for (var move : getMoves(path)) {
-            length += DIR_PATHS.get(move).stream().mapToLong(subPath -> computeLength(subPath, depth - 1)).min().orElseThrow();
-        }
-
+        var length = depth == 1
+            ? getMoves(path).stream().mapToLong(DIR_LENGTHS::get).sum()
+            : getMoves(path).stream().mapToLong(move -> DIR_PATHS.get(move).stream()
+            .mapToLong(subPath -> computeLength(subPath, depth - 1))
+            .min().orElseThrow()).sum();
         memo.put(key, length);
         return length;
     }
 
     private static List<String> getMoves(String path) {
-        var actualPath = "A" + path;
-        return IntStream.range(0, actualPath.length() - 1)
-            .mapToObj(i -> actualPath.substring(i, i + 2))
+        return IntStream.range(0, path.length())
+            .mapToObj(i -> (i == 0 ? "A" : String.valueOf(path.charAt(i - 1))) + path.charAt(i))
             .toList();
     }
 
-    private static Map<String, List<String>> computePaths(BiMap<Character, Point> keypad) {
-        Map<String, List<String>> paths = new HashMap<>();
+    private static BiMap<Character, Point> createKeypad(String... rows) {
+        return IntStream.range(0, rows.length).boxed()
+            .flatMap(y -> IntStream.range(0, rows[y].length())
+                .filter(x -> rows[y].charAt(x) != ' ')
+                .mapToObj(x -> Pair.of(rows[y].charAt(x), new Point(x, y))))
+            .collect(Collectors.toMap(Pair::getKey, Pair::getValue, (_, b) -> b, HashBiMap::create));
+    }
 
-        for (var from : keypad.keySet()) {
-            for (var to : keypad.keySet()) {
-                var key = String.valueOf(from) + to;
-                if (from == to) {
-                    paths.put(key, List.of("A"));
-                    continue;
-                }
+    private static Map<String, List<String>> preComputePaths(BiMap<Character, Point> keypad) {
+        return keypad.keySet().stream()
+            .flatMap(from -> keypad.keySet().stream()
+                .map(to -> Pair.of(from.toString() + to, from == to ? List.of("A") : findShortestPath(keypad, from, to))))
+            .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+    }
 
-                List<String> possibilities = new ArrayList<>();
-                var q = new ArrayDeque<>(List.of(new Node(keypad.get(from), "")));
-                var optimal = Long.MAX_VALUE;
-                while (!q.isEmpty()) {
-                    var current = q.poll();
-                    if (keypad.inverse().get(current.pos) == to) {
-                        if (current.moves.length() < optimal) {
-                            optimal = current.moves.length();
-                        }
-                        possibilities.add(current.moves + "A");
-                    }
-                    for (var dir : DIRMOVEMAP.entrySet()) {
-                        var npos = new Point(current.pos, dir.getValue());
-                        var nm = current.moves + dir.getKey();
-                        var ch = keypad.inverse().get(npos);
-                        if (ch == null || ch == ' ' || nm.length() > optimal)
-                            continue;
-                        q.offer(new Node(npos, nm));
-                    }
+    private static List<String> findShortestPath(BiMap<Character, Point> keypad, char from, char to) {
+        record Node(Point pos, String moves) {}
+        var queue = new ArrayDeque<>(List.of(new Node(keypad.get(from), "")));
+        var shortest = new int[]{Integer.MAX_VALUE};
+        List<String> shortestPaths = new ArrayList<>();
+
+        while (!queue.isEmpty()) {
+            var current = queue.poll();
+            if (keypad.inverse().get(current.pos) == to) {
+                if (current.moves.length() < shortest[0]) {
+                    shortest[0] = current.moves.length();
+                    shortestPaths.clear();
                 }
-                paths.put(key, possibilities);
+                shortestPaths.add(current.moves + "A");
+                continue;
             }
+
+            DIRMOVEMAP.forEach((move, dir) -> {
+                var nextPos = new Point(current.pos, dir);
+                var nextMoves = current.moves + move;
+                var nextButton = keypad.inverse().get(nextPos);
+                if (nextButton == null || nextButton == ' ' || nextMoves.length() > shortest[0]) return;
+                queue.offer(new Node(nextPos, nextMoves));
+            });
         }
-        return paths;
+
+        return shortestPaths;
     }
 
 }
