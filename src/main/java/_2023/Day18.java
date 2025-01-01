@@ -63,7 +63,7 @@ public class Day18 {
     }
 
     private static List<LongPoint> parseVertices(List<Instruction> instructions) {
-        int x = 0, y = 0;
+        long x = 0L, y = 0L;
         List<LongPoint> vertices = new ArrayList<>();
 
         for (var instr : instructions) {

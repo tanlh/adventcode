@@ -23,7 +23,7 @@ public class Day20 {
     public static void main(String[] args) {
         parseInput();
 
-        traversal(start, next -> {
+        bfs(start, next -> {
             if (grid[next.y][next.x] == '#') return false;
             distances[next.y][next.x] = normalPath - next.score;
             return next.x != end.x || next.y != end.y;
@@ -52,7 +52,7 @@ public class Day20 {
 
     private static long countCheat(int startX, int startY) {
         int[] cheats = {0};
-        traversal(new Point(startX, startY), next -> {
+        bfs(new Point(startX, startY), next -> {
             if (next.score <= MAX_CHEAT_STEPS && next.score >= 2 && grid[next.y][next.x] != '#' &&
                 distances[startY][startX] - (next.score + distances[next.y][next.x]) >= SAVE_TIME) cheats[0]++;
             return next.score <= MAX_CHEAT_STEPS;
@@ -60,7 +60,7 @@ public class Day20 {
         return cheats[0];
     }
 
-    private static void traversal(Point start, Predicate<Node> process) {
+    private static void bfs(Point start, Predicate<Node> process) {
         var queue = new ArrayDeque<Node>();
         var visited = new boolean[grid.length][grid[0].length];
         queue.offer(new Node(start.x, start.y, 0));
